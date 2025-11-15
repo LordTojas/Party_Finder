@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiApp2.Pages.MainPage"
+             
+             BackgroundColor="#121212">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="25" Spacing="25">
+
+            <!-- Cím -->
+            <Label Text="Csatlakozz a PartyFinderhez!"
+                   FontSize="28"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   Margin="0,40,0,10"/>
+
+            <!-- Kártya -->
+            <Frame CornerRadius="20"
+                   BackgroundColor="#1E1E1E"
+                   Padding="25"
+                   HasShadow="True">
+                <Frame.Shadow>
+                    <Shadow Brush="#000000" Opacity="0.6" Radius="15" Offset="5,5"/>
+                </Frame.Shadow>
+
+                <VerticalStackLayout Spacing="18">
+
+                    <!-- Felhasználónév -->
+                    <Label Text="Felhasználónév" TextColor="#BB86FC" FontSize="16"/>
+                    <Entry x:Name="UsernameEntry" Placeholder="Írd be a felhasználóneved" PlaceholderColor="#AAAAAA" TextColor="White" />
+
+                    <!-- Email cím -->
+                    <Label Text="Email cím" TextColor="#BB86FC" FontSize="16"/>
+                    <Entry x:Name="EmailEntry" Placeholder="pl. te@pelda.com" PlaceholderColor="#AAAAAA" TextColor="White" Keyboard="Email" />
+
+                    <!-- Jelszó -->
+                    <Label Text="Jelszó" TextColor="#BB86FC" FontSize="16"/>
+                    <Entry x:Name="PasswordEntry" Placeholder="Legalább 8 karakter" PlaceholderColor="#AAAAAA" TextColor="White" IsPassword="True" />
+
+                    <!-- Jelszó újra -->
+                    <Label Text="Jelszó újra" TextColor="#BB86FC" FontSize="16"/>
+                    <Entry x:Name="ConfirmPasswordEntry" Placeholder="Ismételd meg a jelszót" PlaceholderColor="#AAAAAA" TextColor="White" IsPassword="True" />
+
+                    <!-- Nem -->
+                    <Label Text="Nem" TextColor="#BB86FC" FontSize="16"/>
+                    <Picker x:Name="GenderPicker" Title="Válassz nemet" TextColor="White">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String>Férfi</x:String>
+                                <x:String>Nő</x:String>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+
+                    <!-- Kor -->
+                    <Label Text="Kor" TextColor="#BB86FC" FontSize="16"/>
+                    <Picker x:Name="AgePicker" Title="Válassz kort" TextColor="White">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:Int32}">
+                                <x:Int32>18</x:Int32>
+                                <x:Int32>19</x:Int32>
+                                <x:Int32>20</x:Int32>
+                                <x:Int32>21</x:Int32>
+                                <x:Int32>22</x:Int32>
+                                <x:Int32>23</x:Int32>
+                                <x:Int32>24</x:Int32>
+                                <x:Int32>25</x:Int32>
+                                <x:Int32>26</x:Int32>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+
+                    <!-- Elfogadási checkbox -->
+                    <HorizontalStackLayout Spacing="10">
+                        <CheckBox x:Name="AcceptCheckBox" Color="#BB86FC"/>
+                        <Label Text="Elfogadom a feltételeket"
+                               TextColor="White"
+                               VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+
+                    <!-- Fiók létrehozása gomb -->
+                    <Button Text="Fiók létrehozása"
+                            x:Name="RegisterButton"
+                            Clicked="OnRegisterClicked"
+                            BackgroundColor="#BB86FC"
+                            TextColor="White"
+                            CornerRadius="25"
+                            FontAttributes="Bold"
+                            HeightRequest="50"/>
+
+                    <!-- Hibaüzenet -->
+                    <Label x:Name="ErrorLabel"
+                           TextColor="Red"
+                           IsVisible="False"
+                           FontSize="14"
+                           HorizontalOptions="Center"/>
+
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Lábléc -->
+            <Label Text="🎉 Készülj a legjobb bulikra a PartyFinderrel!"
+                   TextColor="#AAAAAA"
+                   FontSize="13"
+                   HorizontalOptions="Center"
+                   Margin="0,20,0,10"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

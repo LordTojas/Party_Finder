@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:maps="clr-namespace:Maui.GoogleMaps;assembly=Maui.GoogleMaps"
+             x:Class="MauiApp2.Pages.EditEventPage"
+             Title="Esemény módosítása"
+             BackgroundColor="#1E1E2F">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="25" Spacing="25">
+
+            <!-- Címsor -->
+            <Label Text="📝 Esemény módosítása"
+                   FontSize="26"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"
+                   Margin="0,10,0,10" />
+
+            <!-- Esemény neve -->
+            <Frame BackgroundColor="#2B2B3F" CornerRadius="12" Padding="15" HasShadow="False">
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Esemény neve" FontSize="16" TextColor="#CCCCCC" />
+                    <Entry x:Name="EventNameEntry"
+                           Text="{Binding EventName}"
+                           Placeholder="Add meg az esemény nevét..."
+                           TextColor="White"
+                           PlaceholderColor="#888888"
+                           BackgroundColor="Transparent" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Helyszín -->
+            <Frame BackgroundColor="#2B2B3F" CornerRadius="12" Padding="15" HasShadow="False">
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Helyszín" FontSize="16" TextColor="#CCCCCC" />
+                    <Entry x:Name="LocationEntry"
+                           Text="{Binding Location}"
+                           Placeholder="Keresd meg a helyszínt..."
+                           TextColor="White"
+                           PlaceholderColor="#888888"
+                           BackgroundColor="Transparent"
+                           TextChanged="OnLocationTextChanged" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Helyszín javaslatok -->
+            <CollectionView x:Name="SuggestionsList"
+                            IsVisible="False"
+                            ItemsSource="{Binding CurrentSuggestions}"
+                            SelectionMode="Single"
+                            SelectionChanged="OnSuggestionSelected"
+                            HeightRequest="150">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame BackgroundColor="#33334D"
+                               CornerRadius="8"
+                               Padding="10"
+                               Margin="0,5"
+                               HasShadow="False">
+                            <Label Text="{Binding Description}"
+                                   TextColor="White"
+                                   FontSize="14" />
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Pozíció gomb -->
+            <Button Text="📍 Jelenlegi pozíció használata"
+                    BackgroundColor="#4CAF50"
+                    TextColor="White"
+                    CornerRadius="12"
+                    HeightRequest="45"
+                    Clicked="OnUseCurrentLocationClicked" />
+
+            <!-- Térkép -->
+            <Frame BackgroundColor="#2B2B3F"
+                   CornerRadius="12"
+                   HasShadow="False"
+                   Padding="5">
+                <maps:Map x:Name="EventMap"
+                          HeightRequest="220"
+                          MapType="Street" />
+            </Frame>
+
+            <!-- Kezdés dátuma -->
+            <Frame BackgroundColor="#2B2B3F" CornerRadius="12" Padding="15" HasShadow="False">
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Kezdés dátuma" FontSize="16" TextColor="#CCCCCC" />
+                    <DatePicker x:Name="StartDatePicker"
+                                Date="{Binding StartDate}"
+                                Format="yyyy-MM-dd"
+                                TextColor="White" />
+                    <TimePicker x:Name="StartTimePicker"
+                                Time="{Binding StartTime}"
+                                Format="HH:mm"
+                                TextColor="White" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Vége dátuma -->
+            <Frame BackgroundColor="#2B2B3F" CornerRadius="12" Padding="15" HasShadow="False">
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Vége dátuma" FontSize="16" TextColor="#CCCCCC" />
+                    <DatePicker x:Name="EndDatePicker"
+                                Date="{Binding EndDate}"
+                                Format="yyyy-MM-dd"
+                                TextColor="White" />
+                    <TimePicker x:Name="EndTimePicker"
+                                Time="{Binding EndTime}"
+                                Format="HH:mm"
+                                TextColor="White" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Korhatár -->
+            <Frame BackgroundColor="#2B2B3F" CornerRadius="12" Padding="15" HasShadow="False">
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Korhatár" FontSize="16" TextColor="#CCCCCC" />
+                    <Picker x:Name="AgeRestrictionPicker"
+                            SelectedItem="{Binding AgeRestriction}"
+                            ItemsSource="{Binding AgeRestrictions}"
+                            Title="Válassz korhatárt"
+                            TextColor="White"
+                            TitleColor="#888888" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Kategória -->
+            <Frame BackgroundColor="#2B2B3F" CornerRadius="12" Padding="15" HasShadow="False">
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Kategória" FontSize="16" TextColor="#CCCCCC" />
+                    <Picker x:Name="CategoryPicker"
+                            SelectedItem="{Binding Category}"
+                            ItemsSource="{Binding Categories}"
+                            Title="Válassz kategóriát"
+                            SelectedIndexChanged="OnCategoryPickerSelectedIndexChanged"
+                            TextColor="White"
+                            TitleColor="#888888" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Zenei műfaj -->
+            <Frame BackgroundColor="#2B2B3F"
+                   CornerRadius="12"
+                   Padding="15"
+                   HasShadow="False"
+                   IsVisible="{Binding IsMusicGenreVisible}">
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Zenei műfaj"
+                           FontSize="16"
+                           TextColor="#CCCCCC" />
+                    <Picker x:Name="MusicGenrePicker"
+                            SelectedItem="{Binding MusicGenre}"
+                            ItemsSource="{Binding MusicGenres}"
+                            Title="Válassz zenei műfajt"
+                            TextColor="White"
+                            TitleColor="#888888" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Módosítás gomb -->
+            <Button Text="💾 Módosítás mentése"
+                    FontSize="18"
+                    FontAttributes="Bold"
+                    BackgroundColor="#9B59B6"
+                    TextColor="White"
+                    CornerRadius="12"
+                    HeightRequest="50"
+                    Command="{Binding SaveCommand}" />
+
+           
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiApp2.Pages.LoginPage"
+             Title="Bejelentkezés"
+             BackgroundColor="Transparent">
+
+    <!-- Háttér: PartyFinder stílusú lila–pink átmenet -->
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#512BD4" Offset="0.0" />
+            <GradientStop Color="#B5179E" Offset="0.5" />
+            <GradientStop Color="#1E1E2C" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="30" Spacing="25"
+                             VerticalOptions="Center"
+                             HorizontalOptions="Center">
+
+            <!-- Felső cím -->
+            <Label Text="🔐 Jelentkezz be"
+                   FontSize="28"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   Margin="0,30,0,10" />
+
+            <!-- Rövid leírás -->
+            <Label Text="Lépj be, és fedezd fel a legjobb bulikat a közeledben!"
+                   FontSize="15"
+                   TextColor="WhiteSmoke"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"
+                   Margin="10,0,10,20"
+                   Opacity="0.9" />
+
+            <!-- Felhasználónév mező -->
+            <Frame BackgroundColor="#2A2A3C"
+                   CornerRadius="15"
+                   Padding="10"
+                   HasShadow="False"
+                   WidthRequest="280">
+                <!-- finom külső árnyék a Frame helyett belső Shadow használatával -->
+                <Frame.Shadow>
+                    <Shadow Brush="#000000" Offset="0,6" Radius="12" Opacity="0.18" />
+                </Frame.Shadow>
+
+                <Entry x:Name="UsernameEntry"
+                       Placeholder="Felhasználónév"
+                       PlaceholderColor="#AAAAAA"
+                       TextColor="White"
+                       FontSize="16"
+                       ClearButtonVisibility="WhileEditing" />
+            </Frame>
+
+            <!-- Jelszó mező -->
+            <Frame BackgroundColor="#2A2A3C"
+                   CornerRadius="15"
+                   Padding="10"
+                   HasShadow="False"
+                   WidthRequest="280">
+                <Frame.Shadow>
+                    <Shadow Brush="#000000" Offset="0,6" Radius="12" Opacity="0.18" />
+                </Frame.Shadow>
+
+                <Entry x:Name="PasswordEntry"
+                       Placeholder="Jelszó"
+                       PlaceholderColor="#AAAAAA"
+                       TextColor="White"
+                       FontSize="16"
+                       IsPassword="True"
+                       ClearButtonVisibility="WhileEditing" />
+            </Frame>
+
+            <!-- Bejelentkezés gomb -->
+            <Button Text="Bejelentkezés"
+                    Clicked="OnLoginClicked"
+                    WidthRequest="220"
+                    HeightRequest="50"
+                    CornerRadius="25"
+                    BackgroundColor="#FF66C4"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    Margin="0,10,0,0">
+                <Button.Shadow>
+                    <!-- finom, elmosódott árnyék a gomb alatt -->
+                    <Shadow Brush="#000000" Offset="0,6" Radius="14" Opacity="0.18" />
+                </Button.Shadow>
+            </Button>
+
+            <!-- vagy Google bejelentkezés -->
+            <Label Text="vagy"
+                   FontSize="14"
+                   TextColor="WhiteSmoke"
+                   HorizontalOptions="Center"
+                   Margin="0,15,0,5"
+                   Opacity="0.8" />
+
+            <!-- Google login kép -->
+            <Frame BackgroundColor="#FFFFFF"
+                   CornerRadius="10"
+                   HasShadow="False"
+                   Padding="0"
+                   WidthRequest="220"
+                   HeightRequest="50">
+                <Frame.Shadow>
+                    <Shadow Brush="#000000" Offset="0,4" Radius="10" Opacity="0.12" />
+                </Frame.Shadow>
+
+                <Image x:Name="GoogleLoginImage"
+                       Source="googlekep.jpg"
+                       Aspect="AspectFit"
+                       WidthRequest="200"
+                       HeightRequest="50">
+                    <Image.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnGoogleLoginClicked" />
+                    </Image.GestureRecognizers>
+                </Image>
+            </Frame>
+
+            <!-- Hibaüzenet -->
+            <Label x:Name="ErrorLabel"
+                   TextColor="#FF8080"
+                   FontSize="14"
+                   FontAttributes="Italic"
+                   HorizontalOptions="Center"
+                   Margin="0,15,0,0"
+                   IsVisible="False" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

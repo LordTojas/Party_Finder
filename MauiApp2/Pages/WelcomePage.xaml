@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiApp2.Pages.WelcomePage"
+             Title="Party Finder"
+             BackgroundColor="Transparent">
+
+    <!-- Háttérkép (Party Finder stílus, halvány, lila/pink tónusú) -->
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#512BD4" Offset="0.0" />
+            <GradientStop Color="#B5179E" Offset="0.5" />
+            <GradientStop Color="#1E1E2C" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <!-- Tartalom középre igazítva -->
+    <Grid Padding="30"
+          RowDefinitions="Auto, *, Auto, Auto"
+          VerticalOptions="Center"
+          HorizontalOptions="Center">
+
+        <!-- Felső cím -->
+        <Label Grid.Row="0"
+               Text="🎉 Üdvözöl a Party Finder!"
+               FontSize="28"
+               FontAttributes="Bold"
+               TextColor="White"
+               HorizontalOptions="Center"
+               HorizontalTextAlignment="Center"
+               Margin="0,40,0,20" />
+
+        <!-- Középső szöveg (rövid leírás) -->
+        <Label Grid.Row="1"
+               Text="Fedezd fel a legjobb bulikat, eseményeket és programokat a közeledben!"
+               FontSize="16"
+               TextColor="WhiteSmoke"
+               HorizontalOptions="Center"
+               HorizontalTextAlignment="Center"
+               Margin="0,0,0,40"
+               Opacity="0.9" />
+
+        <!-- Gombok -->
+        <VerticalStackLayout Grid.Row="2" Spacing="15" HorizontalOptions="Center">
+            <Button Text="Bejelentkezés"
+                    Clicked="OnLoginButtonClicked"
+                    WidthRequest="220"
+                    HeightRequest="50"
+                    CornerRadius="25"
+                    BackgroundColor="#FF66C4"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    Shadow="5" />
+
+            <Button Text="Regisztráció"
+                    Clicked="OnRegisterButtonClicked"
+                    WidthRequest="220"
+                    HeightRequest="50"
+                    CornerRadius="25"
+                    BackgroundColor="#7A49FF"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    Shadow="5" />
+        </VerticalStackLayout>
+
+        <!-- Alsó kis szöveg -->
+        <Label Grid.Row="3"
+               Text="Készülj a következő felejthetetlen estére! ✨"
+               FontSize="14"
+               TextColor="#E0E0E0"
+               HorizontalOptions="Center"
+               Margin="0,30,0,0"
+               Opacity="0.8" />
+
+    </Grid>
+</ContentPage>

@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.companyname.mauiapp2">
+
+	<!-- Engedélyek -->
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+	<uses-sdk android:minSdkVersion="21" android:targetSdkVersion="33" />
+
+	<application
+        android:allowBackup="true"
+        android:icon="@mipmap/appicon"
+        android:roundIcon="@mipmap/appicon_round"
+        android:supportsRtl="true"
+        android:debuggable="true">
+
+		<!-- Google Maps API kulcs -->
+		<meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAD-3jn6Tw-cuiLDeXd4SpeuogH7KhFIuI" />
+
+		<!-- WebAuthenticator callback activity -->
+		<activity android:name="Microsoft.Maui.Authentication.WebAuthenticatorCallbackActivity"
+                  android:exported="true"
+                  android:noHistory="true">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<data android:scheme="myapp" android:host="callback" />
+			</intent-filter>
+		</activity>
+
+	</application>
+</manifest>

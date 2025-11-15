@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:MauiApp2.Converters"
+             x:Class="MauiApp2.Pages.CommunityPage"
+             Title="Közösség">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:BoolConverter x:Key="BoolConverter" />
+
+            <!-- Alap stílusok -->
+            <Style TargetType="Label">
+                <Setter Property="TextColor" Value="White"/>
+            </Style>
+            <Style TargetType="Entry">
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="PlaceholderColor" Value="#AAAAAA"/>
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+            </Style>
+            <Style TargetType="Editor">
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="PlaceholderColor" Value="#AAAAAA"/>
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+            </Style>
+            <Style TargetType="Button">
+                <Setter Property="CornerRadius" Value="10"/>
+                <Setter Property="HeightRequest" Value="45"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid BackgroundColor="#1E1E2F">
+        <ScrollView>
+            <VerticalStackLayout Padding="20" Spacing="25">
+
+                <!-- TAB VÁLTÓ -->
+                <Frame BackgroundColor="#29293D" CornerRadius="10" Padding="5" HasShadow="False">
+                    <Grid ColumnDefinitions="*,*">
+                        <Button x:Name="CommunityTabButton"
+                                Text="Közösség"
+                                BackgroundColor="#9B59B6"
+                                Clicked="OnCommunityTabClicked"/>
+                        <Button x:Name="FriendsTabButton"
+                                Text="Barátok"
+                                Grid.Column="1"
+                                BackgroundColor="Transparent"
+                                Clicked="OnFriendsTabClicked"/>
+                    </Grid>
+                </Frame>
+
+                <!-- ============= KÖZÖSSÉG VIEW ============= -->
+                <VerticalStackLayout x:Name="CommunityView" IsVisible="True" Spacing="20">
+
+                    <!-- Új topic -->
+                    <Frame BackgroundColor="#2B2B3F" CornerRadius="12" Padding="15" HasShadow="False">
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="🗨️ Új Topic létrehozása"
+                                   FontSize="22"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center"/>
+
+                            <Frame BackgroundColor="#2B2B2B" CornerRadius="8" Padding="10" HasShadow="False">
+                                <Entry x:Name="TopicTitleEntry" Placeholder="Topic címe"/>
+                            </Frame>
+
+                            <Frame BackgroundColor="#2B2B2B" CornerRadius="8" Padding="10" HasShadow="False">
+                                <Editor x:Name="TopicDescriptionEditor"
+                                        Placeholder="Írd le a részleteket..."
+                                        AutoSize="TextChanges"
+                                        HeightRequest="120"/>
+                            </Frame>
+
+                            <!-- Esemény keresés -->
+                            <Frame BackgroundColor="#2B2B2B" CornerRadius="8" Padding="10" HasShadow="False">
+                                <Entry x:Name="EventSearchEntry"
+                                       Placeholder="Esemény keresése és linkelése..."
+                                       TextChanged="OnEventSearchTextChanged"/>
+                            </Frame>
+
+                            <CollectionView x:Name="EventSuggestionsCollectionView"
+                                            ItemsSource="{Binding FilteredEvents}"
+                                            SelectionMode="Single"
+                                            SelectionChanged="OnEventSuggestionSelected"
+                                            IsVisible="{Binding FilteredEvents, Converter={StaticResource BoolConverter}}"
+                                            HeightRequest="150">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Frame BackgroundColor="#33334D"
+                                               CornerRadius="8"
+                                               Padding="10"
+                                               Margin="0,5"
+                                               HasShadow="False">
+                                            <Label Text="{Binding EventName}" />
+                                        </Frame>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+
+                            <Button Text="📸 Kép kiválasztása"
+                                    BackgroundColor="#9B59B6"
+                                    Clicked="OnSelectPhotoClicked"/>
+
+                            <Button Text="✅ Topic létrehozása"
+                                    BackgroundColor="#4CAF50"
+                                    Clicked="OnCreateTopicClicked"/>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <BoxView HeightRequest="1" BackgroundColor="#444"/>
+
+                    <Label Text="📰 Legújabb topicok"
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"/>
+
+                    <!-- Topic lista -->
+                    <CollectionView x:Name="TopicsCollectionView"
+                                    ItemsSource="{Binding Topics}"
+                                    SelectionMode="Single"
+                                    SelectionChanged="OnTopicSelected">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Frame CornerRadius="10"
+                                       BackgroundColor="#2A2A3C"
+                                       Padding="15"
+                                       Margin="0,5"
+                                       HasShadow="False">
+                                    <Frame.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnTopicTapped"/>
+                                    </Frame.GestureRecognizers>
+
+                                    <VerticalStackLayout Spacing="5">
+                                        <Label Text="{Binding Title}" FontSize="Medium" FontAttributes="Bold"/>
+                                        <Label Text="{Binding Description}" FontSize="Small" MaxLines="3"/>
+                                        <Label Text="{Binding CreatedAt, StringFormat='Létrehozva: {0:yyyy-MM-dd HH:mm}'}"
+                                               FontSize="Small"
+                                               TextColor="#BBBBBB"/>
+                                    </VerticalStackLayout>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+
+                <!-- ============= BARÁTOK VIEW ============= -->
+                <VerticalStackLayout x:Name="FriendsView" IsVisible="False" Spacing="20">
+                    <Label Text="👥 Barátaim"
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"/>
+
+                    <Button Text="🔑 Saját barátkódom megtekintése"
+                            BackgroundColor="#6A0DAD"
+                            Clicked="OnShowFriendCodeClicked"/>
+
+                    <Frame BackgroundColor="#2B2B2B" CornerRadius="8" Padding="10" HasShadow="False">
+                        <Entry x:Name="FriendSearchEntry"
+                               Placeholder="Barátkód megadása..."
+                               Completed="OnFriendSearchCompleted"/>
+                    </Frame>
+
+                    <Button Text="➕ Barát hozzáadása"
+                            BackgroundColor="#4CAF50"
+                            Clicked="OnAddFriendClicked"/>
+
+                    <Label Text="📨 Bejövő kérelmek"
+                           FontAttributes="Bold"
+                           FontSize="18"/>
+
+                    <CollectionView x:Name="FriendRequestsCollectionView"
+                                    ItemsSource="{Binding IncomingRequests}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Frame CornerRadius="10"
+                                       BackgroundColor="#2A2A3C"
+                                       Padding="10"
+                                       Margin="0,5"
+                                       HasShadow="False">
+                                    <HorizontalStackLayout Spacing="10">
+                                        <Label Text="{Binding SenderName}" VerticalOptions="Center"/>
+                                        <Button Text="✅" WidthRequest="40"
+                                                BackgroundColor="#4CAF50"
+                                                CommandParameter="{Binding Id}"
+                                                Clicked="OnAcceptFriendClicked"/>
+                                        <Button Text="❌" WidthRequest="40"
+                                                BackgroundColor="#E74C3C"
+                                                CommandParameter="{Binding Id}"
+                                                Clicked="OnDeclineFriendClicked"/>
+                                    </HorizontalStackLayout>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <Label Text="👫 Barátlista"
+                           FontAttributes="Bold"
+                           FontSize="18"/>
+
+                    <CollectionView x:Name="FriendsCollectionView"
+                                    ItemsSource="{Binding Friends}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Frame CornerRadius="10"
+                                       BackgroundColor="#2A2A3C"
+                                       Padding="10"
+                                       Margin="0,5"
+                                       HasShadow="False">
+                                    <HorizontalStackLayout Spacing="10">
+                                        <Label Text="{Binding FriendName}" VerticalOptions="Center"/>
+                                        <Button Text="💬" WidthRequest="40" BackgroundColor="#2196F3"/>
+                                        <Button Text="🗑️" WidthRequest="40"
+                                                BackgroundColor="#E74C3C"
+                                                CommandParameter="{Binding Id}"
+                                                Clicked="OnDeleteFriendClicked"/>
+                                    </HorizontalStackLayout>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+
+                <!-- ============= TOPIC RÉSZLETES NÉZET ============= -->
+                <Frame x:Name="DetailFrame"
+                       IsVisible="False"
+                       BackgroundColor="#2B2B3F"
+                       CornerRadius="12"
+                       Padding="15"
+                       HasShadow="False">
+                    <ScrollView>
+                        <VerticalStackLayout Spacing="15">
+                            <Button Text="⬅ Vissza"
+                                    BackgroundColor="#9B59B6"
+                                    Clicked="OnBackClicked"/>
+
+                            <Label Text="{Binding SelectedTopic.Title}"
+                                   FontSize="22"
+                                   FontAttributes="Bold"/>
+
+                            <Label Text="{Binding SelectedTopic.Description}"
+                                   FontSize="Medium"/>
+
+                            <!-- Csatolt esemény -->
+                            <Frame IsVisible="{Binding SelectedTopic.HasEvent}"
+                                   BackgroundColor="#33334D"
+                                   CornerRadius="10"
+                                   Padding="10"
+                                   HasShadow="False">
+                                <VerticalStackLayout>
+                                    <Label Text="📍 Kapcsolódó esemény"
+                                           FontAttributes="Bold"
+                                           FontSize="16"/>
+                                    <Label Text="{Binding SelectedTopic.LinkedEvent.EventName}" FontSize="14"/>
+                                    <Label Text="{Binding SelectedTopic.LinkedEvent.Location, StringFormat='Helyszín: {0}'}"
+                                           FontSize="Small"/>
+                                </VerticalStackLayout>
+                            </Frame>
+
+                            <!-- Kép -->
+                            <Image Source="{Binding SelectedTopic.PhotoUrl}"
+                                   IsVisible="{Binding SelectedTopic.HasPhoto}"
+                                   Aspect="AspectFit"
+                                   HeightRequest="200"/>
+
+                            <Label Text="💬 Kommentek"
+                                   FontSize="18"
+                                   FontAttributes="Bold"/>
+
+                            <Frame BackgroundColor="#2B2B2B" CornerRadius="8" Padding="10" HasShadow="False">
+                                <Editor x:Name="CommentEditor"
+                                        Placeholder="Írj egy kommentet..."
+                                        AutoSize="TextChanges"
+                                        HeightRequest="80"/>
+                            </Frame>
+
+                            <Button Text="Komment elküldése"
+                                    BackgroundColor="#4CAF50"
+                                    Clicked="OnAddCommentClicked"/>
+
+                            <CollectionView ItemsSource="{Binding SelectedTopic.Comments}">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Frame BackgroundColor="#2A2A3C"
+                                               CornerRadius="8"
+                                               Padding="10"
+                                               Margin="0,5"
+                                               HasShadow="False">
+                                            <VerticalStackLayout Spacing="5">
+                                                <Label Text="{Binding UserId}" FontSize="Small" FontAttributes="Bold"/>
+                                                <Label Text="{Binding CommentText}" FontSize="Small"/>
+                                                <Label Text="{Binding CreatedAt, StringFormat='{0:yyyy-MM-dd HH:mm}'}"
+                                                       FontSize="Small"
+                                                       TextColor="#AAAAAA"/>
+                                            </VerticalStackLayout>
+                                        </Frame>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
+                    </ScrollView>
+                </Frame>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

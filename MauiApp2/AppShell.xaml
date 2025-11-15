@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="MauiApp2.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:pages="clr-namespace:MauiApp2.Pages"
+    xmlns:root="clr-namespace:MauiApp2"
+    Shell.FlyoutBehavior="Disabled">
+
+    <!-- Kezdőoldal: WelcomePage -->
+    <ShellContent
+        Title="Üdvözöljük"
+        Route="WelcomePage"
+        ContentTemplate="{DataTemplate pages:WelcomePage}"
+        IsVisible="True" />
+
+    <!-- Bejelentkezési oldal -->
+    <ShellContent
+        Title="Bejelentkezés"
+        Route="LoginPage"
+        ContentTemplate="{DataTemplate pages:LoginPage}"
+        IsVisible="False" />
+
+    <!-- Regisztrációs oldal -->
+    <ShellContent
+        Title="Regisztráció"
+        Route="MainPage"
+        ContentTemplate="{DataTemplate pages:MainPage}"
+        IsVisible="False" />
+
+    <!-- Főoldal -->
+    <ShellContent
+        Title="Főoldal"
+        Route="HomePage"
+        ContentTemplate="{DataTemplate pages:HomePage}"
+        IsVisible="False" />
+
+    <!-- Esemény létrehozása oldal -->
+    <ShellContent
+        Title="Esemény létrehozása"
+        Route="EventCreationPage"
+        ContentTemplate="{DataTemplate pages:EventCreationPage}"
+        IsVisible="False" />
+
+    <!-- Eseménykereső oldal -->
+    <ShellContent
+        Title="Eseménykereső"
+        Route="EventSearchPage"
+        ContentTemplate="{DataTemplate pages:EventSearchPage}"
+        IsVisible="False" />
+
+    
+
+    <!-- Új oldalak -->
+    <!-- Aktuális események oldal -->
+    <ShellContent
+        Title="Aktuális események"
+        Route="CurrentPage"
+        ContentTemplate="{DataTemplate pages:CurrentPage}"
+        IsVisible="False" />
+
+    <!-- Közösségi oldal -->
+    <ShellContent
+        Title="Közösség"
+        Route="CommunityPage"
+        ContentTemplate="{DataTemplate pages:CommunityPage}"
+        IsVisible="False" />
+
+    <!-- Népszerű események oldal -->
+    <ShellContent
+        Title="Népszerű események"
+        Route="PopularPage"
+        ContentTemplate="{DataTemplate pages:PopularPage}"
+        IsVisible="False" />
+
+    <!-- Ajánlott események oldal -->
+    <ShellContent
+        Title="Ajánlott események"
+        Route="RecommendedPage"
+        ContentTemplate="{DataTemplate pages:RecommendedPage}"
+        IsVisible="False" />
+
+    <!-- Meglepetés oldal -->
+    <ShellContent
+        Title="Meglepetés"
+        Route="SupriseMePage"
+        ContentTemplate="{DataTemplate pages:SupriseMePage}"
+        IsVisible="False" />
+
+    <!-- Mentett események oldal -->
+    <ShellContent
+        Title="Mentett események"
+        Route="SavedPage"
+        ContentTemplate="{DataTemplate pages:SavedPage}"
+        IsVisible="False" />
+
+    <!-- Beállítások oldal -->
+    <ShellContent
+        Title="Beállítások"
+        Route="SettingsPage"
+        ContentTemplate="{DataTemplate pages:SettingsPage}"
+        IsVisible="False" />
+
+    <ShellContent
+        Title="Edit Event"
+        ContentTemplate="{DataTemplate pages:EditEventPage}"
+        Route="EditEventPage" />
+    
+    <ShellContent
+        Title="My Events"
+        Route="MyEventsPage"
+        ContentTemplate="{DataTemplate pages:MyEventsPage}"
+        IsVisible="False" />
+
+</Shell>

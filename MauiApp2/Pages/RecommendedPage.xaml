@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:MauiApp2.Converters"
+             x:Class="MauiApp2.Pages.RecommendedPage"
+             Title="Ajánlott események"
+             BackgroundColor="#1E1E2F">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:TimeSpanToStringConverter x:Key="TimeSpanToStringConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="25" Spacing="25">
+
+            <!-- Fejléc -->
+            <Label Text="🤝 Ajánlott események neked"
+                   FontSize="26"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   Margin="0,10,0,5" />
+
+            <!-- Ajánlás gomb -->
+            <Button Text="✨ Új ajánlás kérése"
+                    FontSize="18"
+                    FontAttributes="Bold"
+                    BackgroundColor="#4CAF50"
+                    TextColor="White"
+                    CornerRadius="12"
+                    HeightRequest="55"
+                    WidthRequest="240"
+                    HorizontalOptions="Center"
+                    Clicked="OnRecommendClicked" />
+
+            <!-- Ajánlott események listája -->
+            <CollectionView x:Name="RecommendedEventsCollectionView"
+                            ItemsSource="{Binding RecommendedEvents}"
+                            IsVisible="{Binding HasRecommendedEvents}"
+                            SelectionMode="None">
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame CornerRadius="15"
+                               Padding="15"
+                               Margin="0,8"
+                               HasShadow="True"
+                               BackgroundColor="#2B2B3F"
+                               BorderColor="#3C3C4D">
+
+                            <VerticalStackLayout Spacing="8">
+
+                                <!-- Státusz jelölő -->
+                                <Frame CornerRadius="8"
+                                       Padding="6,3"
+                                       WidthRequest="100"
+                                       BackgroundColor="{Binding StatusColor}"
+                                       HorizontalOptions="Start">
+                                    <Label Text="{Binding StatusText}"
+                                           TextColor="White"
+                                           FontSize="12"
+                                           FontAttributes="Bold"
+                                           HorizontalTextAlignment="Center"/>
+                                </Frame>
+
+                                <!-- Esemény neve -->
+                                <Label Text="{Binding EventName}"
+                                       FontSize="20"
+                                       FontAttributes="Bold"
+                                       TextColor="White"
+                                       LineBreakMode="WordWrap"/>
+
+                                <!-- Helyszín -->
+                                <HorizontalStackLayout Spacing="6">
+                                    <Label Text="📍" FontSize="14" TextColor="#9B59B6"/>
+                                    <Label Text="{Binding Location}"
+                                           FontSize="14"
+                                           TextColor="#CCCCCC"/>
+                                </HorizontalStackLayout>
+
+                                <!-- Kezdés -->
+                                <HorizontalStackLayout Spacing="6">
+                                    <Label Text="🕒" FontSize="14" TextColor="#9B59B6"/>
+                                    <Label Text="{Binding StartDate, StringFormat='Kezdés: {0:yyyy.MM.dd}'}"
+                                           FontSize="13"
+                                           TextColor="#BBBBBB"/>
+                                    <Label Text="{Binding StartTime, Converter={StaticResource TimeSpanToStringConverter}}"
+                                           FontSize="13"
+                                           TextColor="#BBBBBB"/>
+                                </HorizontalStackLayout>
+
+                                <!-- Vége -->
+                                <HorizontalStackLayout Spacing="6">
+                                    <Label Text="⏰" FontSize="14" TextColor="#9B59B6"/>
+                                    <Label Text="{Binding EndDate, StringFormat='Vége: {0:yyyy.MM.dd}'}"
+                                           FontSize="13"
+                                           TextColor="#BBBBBB"/>
+                                    <Label Text="{Binding EndTime, Converter={StaticResource TimeSpanToStringConverter}}"
+                                           FontSize="13"
+                                           TextColor="#BBBBBB"/>
+                                </HorizontalStackLayout>
+
+                                <!-- Kategória és korhatár -->
+                                <HorizontalStackLayout Spacing="8" Margin="0,5,0,0">
+                                    <Label Text="📂" FontSize="14" TextColor="#9B59B6"/>
+                                    <Label Text="{Binding Category}"
+                                           FontSize="13"
+                                           TextColor="#CCCCCC"/>
+                                    <Label Text="🔞" FontSize="14" TextColor="#9B59B6"/>
+                                    <Label Text="{Binding AgeRestriction}"
+                                           FontSize="13"
+                                           TextColor="#CCCCCC"/>
+                                </HorizontalStackLayout>
+
+                                <!-- Gombok -->
+                                <HorizontalStackLayout Spacing="12" Margin="0,10,0,0" HorizontalOptions="Center">
+                                    <Button Text="💜 Kedvelés"
+                                            BackgroundColor="#9B59B6"
+                                            TextColor="White"
+                                            FontAttributes="Bold"
+                                            CornerRadius="10"
+                                            HeightRequest="40"
+                                            WidthRequest="130"
+                                            Command="{Binding LikeCommand}"
+                                            CommandParameter="{Binding Id}"/>
+                                    <Button Text="🎟️ Ott leszek"
+                                            BackgroundColor="#4CAF50"
+                                            TextColor="White"
+                                            FontAttributes="Bold"
+                                            CornerRadius="10"
+                                            HeightRequest="40"
+                                            WidthRequest="130"
+                                            Command="{Binding BeThereCommand}"
+                                            CommandParameter="{Binding Id}"/>
+                                </HorizontalStackLayout>
+
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Üres ajánlások -->
+            <Label Text="Nincs ajánlott esemény 😔"
+                   FontSize="16"
+                   TextColor="#AAAAAA"
+                   HorizontalOptions="Center"
+                   IsVisible="{Binding HasNoRecommendedEvents}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

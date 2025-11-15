@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiApp2.Pages.MyEventsPage"
+             Title="Saját eseményeim"
+             BackgroundColor="#1E1E2F">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="25" Spacing="25">
+
+            <!-- Fejléc -->
+            <Label Text="🎟️ Saját eseményeim"
+                   FontSize="26"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   Margin="0,10,0,5" />
+
+            <!-- Ha vannak események -->
+            <CollectionView x:Name="EventsCollectionView"
+                            ItemsSource="{Binding UserEvents}"
+                            IsVisible="{Binding HasEvents}"
+                            SelectionMode="None">
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame CornerRadius="15"
+                               Padding="15"
+                               Margin="0,8"
+                               HasShadow="True"
+                               BackgroundColor="#2B2B3F"
+                               BorderColor="#3C3C4D">
+
+                            <VerticalStackLayout Spacing="8">
+
+                                <!-- Státusz badge -->
+                                <Frame CornerRadius="8"
+                                       Padding="6,3"
+                                       WidthRequest="100"
+                                       BackgroundColor="{Binding StatusColor}"
+                                       HorizontalOptions="Start">
+                                    <Label Text="{Binding StatusText}"
+                                           TextColor="White"
+                                           FontSize="12"
+                                           FontAttributes="Bold"
+                                           HorizontalTextAlignment="Center"/>
+                                </Frame>
+
+                                <!-- Esemény neve -->
+                                <Label Text="{Binding EventName}"
+                                       FontSize="20"
+                                       FontAttributes="Bold"
+                                       TextColor="White"
+                                       LineBreakMode="WordWrap"/>
+
+                                <!-- Helyszín -->
+                                <HorizontalStackLayout Spacing="6">
+                                    <Label Text="📍" FontSize="14" TextColor="#9B59B6"/>
+                                    <Label Text="{Binding Location}"
+                                           FontSize="14"
+                                           TextColor="#CCCCCC"/>
+                                </HorizontalStackLayout>
+
+                                <!-- Időpont -->
+                                <HorizontalStackLayout Spacing="6">
+                                    <Label Text="🕒" FontSize="14" TextColor="#9B59B6"/>
+                                    <Label Text="{Binding StartDate, StringFormat='Kezdés: {0:yyyy.MM.dd HH:mm}'}"
+                                           FontSize="13"
+                                           TextColor="#BBBBBB"/>
+                                </HorizontalStackLayout>
+
+                                <HorizontalStackLayout Spacing="6">
+                                    <Label Text="⏰" FontSize="14" TextColor="#9B59B6"/>
+                                    <Label Text="{Binding EndDate, StringFormat='Vége: {0:yyyy.MM.dd HH:mm}'}"
+                                           FontSize="13"
+                                           TextColor="#BBBBBB"/>
+                                </HorizontalStackLayout>
+
+                                <!-- Kategória és korhatár -->
+                                <HorizontalStackLayout Spacing="8" Margin="0,5,0,0">
+                                    <Label Text="📂" FontSize="14" TextColor="#9B59B6"/>
+                                    <Label Text="{Binding Category}"
+                                           FontSize="13"
+                                           TextColor="#CCCCCC"/>
+                                    <Label Text="🔞" FontSize="14" TextColor="#9B59B6"/>
+                                    <Label Text="{Binding AgeRestriction}"
+                                           FontSize="13"
+                                           TextColor="#CCCCCC"/>
+                                </HorizontalStackLayout>
+
+                                <!-- Készítő -->
+                                <HorizontalStackLayout Spacing="5">
+                                    <Label Text="👤 Készítette:"
+                                           FontSize="13"
+                                           TextColor="#AAAAAA"/>
+                                    <Label Text="{Binding CreatorName}"
+                                           FontSize="13"
+                                           TextColor="#9B59B6">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding ShowCreatorDetailsCommand}" />
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                </HorizontalStackLayout>
+
+                                <!-- Gombok -->
+                                <HorizontalStackLayout Spacing="12" Margin="0,10,0,0">
+                                    <Button Text="✏️ Módosítás"
+                                            BackgroundColor="#9B59B6"
+                                            TextColor="White"
+                                            FontAttributes="Bold"
+                                            CornerRadius="10"
+                                            HeightRequest="40"
+                                            WidthRequest="120"
+                                            Command="{Binding EditCommand}"
+                                            CommandParameter="{Binding Id}"/>
+                                    <Button Text="🗑️ Törlés"
+                                            BackgroundColor="#E74C3C"
+                                            TextColor="White"
+                                            FontAttributes="Bold"
+                                            CornerRadius="10"
+                                            HeightRequest="40"
+                                            WidthRequest="120"
+                                            Command="{Binding DeleteCommand}"
+                                            CommandParameter="{Binding Id}"/>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Ha nincs esemény -->
+            <Label Text="Nincsenek saját eseményeid 😔"
+                   FontSize="16"
+                   TextColor="#AAAAAA"
+                   HorizontalOptions="Center"
+                   IsVisible="{Binding HasNoEvents}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiApp2.Pages.BasePage"
+             NavigationPage.HasNavigationBar="False">
+
+    <AbsoluteLayout>
+        <!-- Az oldal tartalma, amit az öröklő oldalak adnak meg -->
+        <ContentView x:Name="PageContent"
+                     AbsoluteLayout.LayoutBounds="0, 0, 1, 1"
+                     AbsoluteLayout.LayoutFlags="All"/>
+
+        <!-- Vissza gomb a bal felső sarokban -->
+        <Button x:Name="BackButton"
+                Text="⬅"
+                FontSize="16"
+                WidthRequest="40"
+                HeightRequest="40"
+                BackgroundColor="Transparent"
+                TextColor="Black"
+                BorderWidth="1"
+                BorderColor="Black"
+                CornerRadius="20"
+                AbsoluteLayout.LayoutBounds="0, 0, 40, 40"
+                AbsoluteLayout.LayoutFlags="PositionProportional"
+                Clicked="OnBackButtonClicked"/>
+    </AbsoluteLayout>
+
+</ContentPage>

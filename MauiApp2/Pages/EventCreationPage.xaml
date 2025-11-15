@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<local:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:local="clr-namespace:MauiApp2.Pages"
+                xmlns:maps="clr-namespace:Maui.GoogleMaps;assembly=Maui.GoogleMaps"
+                x:Class="MauiApp2.Pages.EventCreationPage"
+                Title="Esemény Létrehozása"
+                Shell.NavBarIsVisible="False">
+
+    <local:BasePage.Resources>
+        <ResourceDictionary>
+            <!-- Buborékos betűtípus (feltételezve, hogy BubblegumSans regisztrálva van a MauiProgram.cs-ben) -->
+            <Style TargetType="Label">
+                <Setter Property="FontFamily" Value="BubblegumSans"/>
+                <Setter Property="TextColor" Value="White"/>
+            </Style>
+
+            <!-- Alap stílus beviteli mezők szövegéhez -->
+            <Style TargetType="Entry">
+                <Setter Property="FontFamily" Value="BubblegumSans"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="PlaceholderColor" Value="#CCCCCC"/>
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+                <Setter Property="ClearButtonVisibility" Value="WhileEditing"/>
+            </Style>
+
+            <Style TargetType="Editor">
+                <Setter Property="FontFamily" Value="BubblegumSans"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="PlaceholderColor" Value="#CCCCCC"/>
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+            </Style>
+
+            <Style TargetType="Picker">
+                <Setter Property="FontFamily" Value="BubblegumSans"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="TitleColor" Value="#BBBBBB"/>
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+            </Style>
+
+            <Style TargetType="Button">
+                <Setter Property="FontFamily" Value="BubblegumSans"/>
+                <Setter Property="CornerRadius" Value="25"/>
+                <Setter Property="HeightRequest" Value="55"/>
+                <Setter Property="TextColor" Value="White"/>
+            </Style>
+
+            <!-- Újrahasználható konténer stílus bemeneti mezőkhöz -->
+            <Style x:Key="InputContainer" TargetType="Border">
+                <Setter Property="StrokeShape" Value="RoundRectangle 15"/>
+                <Setter Property="Background" Value="#2A2A3C"/>
+                <Setter Property="Padding" Value="12,10"/>
+                <Setter Property="StrokeThickness" Value="0"/>
+                <Setter Property="Margin" Value="0"/>
+            </Style>
+        </ResourceDictionary>
+    </local:BasePage.Resources>
+
+    <!-- Neon gradiens háttér -->
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#6A0DAD" Offset="0.0" />
+                <GradientStop Color="#00FFC3" Offset="1.0" />
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <ScrollView>
+            <VerticalStackLayout Padding="25" Spacing="20">
+
+                <!-- Cím -->
+                <Label Text="🎉 Új Esemény Létrehozása"
+                       FontSize="32"
+                       HorizontalOptions="Center"
+                       Margin="0,20,0,10"/>
+
+                <!-- Esemény neve -->
+                <Border Style="{StaticResource InputContainer}">
+                    <Entry x:Name="EventNameEntry"
+                           Placeholder="Esemény neve"
+                           MaxLength="100"/>
+                </Border>
+
+                <!-- Esemény leírása -->
+                <Border Style="{StaticResource InputContainer}">
+                    <Editor x:Name="EventDescriptionEditor"
+                            Placeholder="Esemény leírása"
+                            MaxLength="500"
+                            AutoSize="TextChanges"
+                            HeightRequest="120"/>
+                </Border>
+
+                <!-- Korhatár -->
+                <Label Text="Korhatár:" FontSize="20" />
+                <Border Style="{StaticResource InputContainer}">
+                    <Picker x:Name="AgeRestrictionPicker"
+                            Title="Válassz korhatárt">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String>Nincs korhatár</x:String>
+                                <x:String>Korhatáros (18+)</x:String>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+                </Border>
+
+                <!-- Esemény kezdete -->
+                <Label Text="Esemény kezdete:" FontSize="20" />
+                <HorizontalStackLayout Spacing="10">
+                    <Border Style="{StaticResource InputContainer}">
+                        <DatePicker x:Name="StartDatePicker" />
+                    </Border>
+                    <Border Style="{StaticResource InputContainer}">
+                        <TimePicker x:Name="StartTimePicker" />
+                    </Border>
+                </HorizontalStackLayout>
+
+                <!-- Esemény vége -->
+                <Label Text="Esemény vége:" FontSize="20" />
+                <HorizontalStackLayout Spacing="10">
+                    <Border Style="{StaticResource InputContainer}">
+                        <DatePicker x:Name="EndDatePicker" />
+                    </Border>
+                    <Border Style="{StaticResource InputContainer}">
+                        <TimePicker x:Name="EndTimePicker" />
+                    </Border>
+                </HorizontalStackLayout>
+
+                <!-- Kategória -->
+                <Label Text="Kategória:" FontSize="20" />
+                <Border Style="{StaticResource InputContainer}">
+                    <Picker x:Name="CategoryPicker"
+                            Title="Válassz kategóriát"
+                            SelectedIndexChanged="OnCategoryPickerSelectedIndexChanged">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String>Hivatalos esemény</x:String>
+                                <x:String>Buli/Házibuli</x:String>
+                                <x:String>Koncert</x:String>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+                </Border>
+
+                <!-- Zenei műfaj (csak Koncert esetén) -->
+                <Label Text="Zenei műfaj:"
+                       FontSize="20"
+                       IsVisible="{Binding IsMusicGenreVisible}" />
+                <Border Style="{StaticResource InputContainer}"
+                        IsVisible="{Binding IsMusicGenreVisible}">
+                    <Picker x:Name="MusicGenrePicker"
+                            Title="Válassz zenei műfajt">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String>Rock</x:String>
+                                <x:String>Pop</x:String>
+                                <x:String>Jazz</x:String>
+                                <x:String>Klasszikus</x:String>
+                                <x:String>Elektronikus</x:String>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+                </Border>
+
+                <!-- Helyszín -->
+                <Label Text="📍 Esemény helyszíne" FontSize="20"/>
+                <Border Style="{StaticResource InputContainer}">
+                    <Entry x:Name="LocationEntry"
+                           Placeholder="Add meg a helyszínt vagy használd a saját helyzeted"
+                           TextChanged="OnLocationTextChanged"/>
+                </Border>
+
+                <!-- Helyjavaslatok -->
+                <CollectionView x:Name="SuggestionsList"
+                                HeightRequest="150"
+                                IsVisible="False"
+                                SelectionMode="Single"
+                                SelectionChanged="OnSuggestionSelected">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource InputContainer}">
+                                <Label Text="{Binding Description}" FontSize="16" />
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- Saját helyzet -->
+                <Button Text="📡 Saját helyzet használata"
+                        BackgroundColor="#FF66C4"
+                        Clicked="OnUseCurrentLocationClicked"/>
+
+                <!-- Térkép -->
+                <maps:Map x:Name="EventMap"
+                          HeightRequest="220"
+                          WidthRequest="320"
+                          MapType="Street" />
+
+                <!-- Létrehozás gomb -->
+                <Button Text="✨ Esemény létrehozása"
+                        BackgroundColor="#9B59B6"
+                        Clicked="OnCreateEventClicked"
+                        FontSize="20"
+                        Margin="0,10,0,30"/>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</local:BasePage>
