@@ -8,7 +8,7 @@ namespace MauiApp2.Models
     public class User : BaseModel
     {
         [PrimaryKey("id", false)]
-        public string Id { get; set; } // String típusra váltás
+        public string Id { get; set; } 
 
         [Column("username")]
         public string Username { get; set; }

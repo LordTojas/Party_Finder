@@ -11,7 +11,7 @@ namespace MauiApp2.Models
         public Guid Id { get; set; }
 
         [Column("user_id")]
-        public Guid UserId { get; set; } // String helyett Guid, hogy megfeleljen a tábla user_id oszlopának típusának
+        public Guid UserId { get; set; } 
 
         [Column("description")]
         public string Description { get; set; }

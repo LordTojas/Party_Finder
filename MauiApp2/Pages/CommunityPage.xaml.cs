@@ -4,8 +4,10 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+
+
+using Newtonsoft.Json;
 
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
@@ -16,6 +18,7 @@ using Supabase.Postgrest.Models;
 using Supabase.Realtime;
 using Supabase.Realtime.PostgresChanges;
 
+
 using MauiApp2.Models;
 
 namespace MauiApp2.Pages
@@ -24,7 +27,7 @@ namespace MauiApp2.Pages
     {
         private readonly Supabase.Client _supabaseClient;
 
-        // ======== Topicok ========
+      
         private ObservableCollection<Topic> _topics;
         private Topic _selectedTopic;
         private ObservableCollection<Event> _availableEvents;
@@ -32,19 +35,30 @@ namespace MauiApp2.Pages
         private Event _selectedEvent;
         private string _selectedPhotoPath;
 
-        // Debounce / guardok az inkonzisztens interakciók ellen
+       
         private DateTime _lastEventPickAt = DateTime.MinValue;
         private DateTime _lastTopicOpenAt = DateTime.MinValue;
         private bool _isOpeningTopic = false;
         private static readonly TimeSpan _debounce = TimeSpan.FromMilliseconds(350);
 
-        // ======== Barátkezelés ========
+       
+        private bool _isProgrammaticUpdate = false;
+
+       
         private Guid _userId;
         private string _friendCode = string.Empty;
         private string _email = string.Empty;
+
+      
         public ObservableCollection<Friend> Friends { get; set; } = new();
         public ObservableCollection<FriendRequest> IncomingRequests { get; set; } = new();
 
+        
+        private Guid _currentChatPartnerId;
+        private RealtimeChannel _chatChannel;
+        public ObservableCollection<PrivateMessage> CurrentChatMessages { get; set; } = new();
+
+       
         public ObservableCollection<Topic> Topics
         {
             get => _topics;
@@ -79,26 +93,21 @@ namespace MauiApp2.Pages
             _availableEvents = new();
             _filteredEvents = new();
 
-            // Real-time komment figyelés
+           
             Task.Run(async () =>
             {
                 try { await _supabaseClient.Realtime.ConnectAsync(); }
                 catch (Exception ex)
                 {
-                    await Dispatcher.DispatchAsync(async () =>
-                        await DisplayAlert("Hiba", $"Realtime kapcsolat inicializálása sikertelen: {ex.Message}", "OK"));
+                    Console.WriteLine($"Realtime hiba: {ex.Message}");
                 }
             }).GetAwaiter().OnCompleted(() => SubscribeToComments());
 
+            
             LoadUserDataAsync();
-            LoadEventsAsync();
-            LoadTopicsAsync();
-            LoadFriendsAsync();
         }
 
-        // =========================
-        // ===== BARÁTKEZELÉS =====
-        // =========================
+        
         private async void LoadUserDataAsync()
         {
             try
@@ -107,13 +116,25 @@ namespace MauiApp2.Pages
                 if (user == null) return;
 
                 _email = user.Email ?? string.Empty;
-                Guid.TryParse(user.Id, out _userId);
+
+                if (Guid.TryParse(user.Id, out Guid parsedId))
+                {
+                    _userId = parsedId;
+                }
+                else
+                {
+                    return;
+                }
 
                 var profileResp = await _supabaseClient.From<ProfileData>()
                     .Where(p => p.UserId == _userId).Get();
 
                 var profile = profileResp.Models.FirstOrDefault();
                 _friendCode = profile?.FriendCode ?? string.Empty;
+
+                LoadEventsAsync();
+                LoadTopicsAsync();
+                LoadFriendsAsync();
             }
             catch (Exception ex)
             {
@@ -121,42 +142,74 @@ namespace MauiApp2.Pages
             }
         }
 
+        
         private async void LoadFriendsAsync()
         {
+            if (_userId == Guid.Empty) return;
+
             try
             {
                 Friends.Clear();
                 IncomingRequests.Clear();
 
-                var resp = await _supabaseClient.From<Friend>()
-                    .Where(f => f.UserId == _userId || f.FriendUserId == _userId)
+                
+                var t1 = _supabaseClient.From<Friend>()
+                    .Filter("user_id", Supabase.Postgrest.Constants.Operator.Equals, _userId.ToString())
                     .Get();
 
-                foreach (var f in resp.Models)
+                
+                var t2 = _supabaseClient.From<Friend>()
+                    .Filter("friend_user_id", Supabase.Postgrest.Constants.Operator.Equals, _userId.ToString())
+                    .Get();
+
+                await Task.WhenAll(t1, t2);
+                var allResults = t1.Result.Models.Concat(t2.Result.Models).ToList();
+
+                foreach (var f in allResults)
                 {
+                   
                     if (f.IsAccepted)
                     {
-                        var friendId = f.UserId == _userId ? f.FriendUserId : f.UserId;
-                        var prof = await _supabaseClient.From<ProfileData>().Where(p => p.UserId == friendId).Get();
-                        var pr = prof.Models.FirstOrDefault();
-                        Friends.Add(new Friend
+                        var friendId = (f.UserId == _userId) ? f.FriendUserId : f.UserId;
+
+                       
+                        var userResp = await _supabaseClient.From<MauiApp2.Models.User>()
+                                            .Filter("id", Supabase.Postgrest.Constants.Operator.Equals, friendId.ToString())
+                                            .Get();
+
+                        var userObj = userResp.Models.FirstOrDefault();
+                        string displayName = userObj?.Username ?? "(Ismeretlen)";
+
+                        if (!Friends.Any(existing => existing.Id == f.Id))
                         {
-                            Id = f.Id,
-                            UserId = f.UserId,
-                            FriendUserId = f.FriendUserId,
-                            FriendName = pr?.Description ?? pr?.FriendCode ?? "(ismeretlen)",
-                            IsAccepted = true
-                        });
+                            Friends.Add(new Friend
+                            {
+                                Id = f.Id,
+                                UserId = f.UserId,
+                                FriendUserId = f.FriendUserId,
+                                IsAccepted = true,
+                                FriendName = displayName
+                            });
+                        }
                     }
+                    
                     else if (!f.IsAccepted && f.FriendUserId == _userId)
                     {
-                        var prof = await _supabaseClient.From<ProfileData>().Where(p => p.UserId == f.UserId).Get();
-                        var pr = prof.Models.FirstOrDefault();
-                        IncomingRequests.Add(new FriendRequest
+                        var userResp = await _supabaseClient.From<MauiApp2.Models.User>()
+                                            .Filter("id", Supabase.Postgrest.Constants.Operator.Equals, f.UserId.ToString())
+                                            .Get();
+
+                        var userObj = userResp.Models.FirstOrDefault();
+                        string senderName = userObj?.Username ?? "(Ismeretlen)";
+
+                        if (!IncomingRequests.Any(req => req.Id == f.Id))
                         {
-                            Id = f.Id,
-                            SenderName = pr?.Description ?? pr?.FriendCode ?? "(ismeretlen)"
-                        });
+                            IncomingRequests.Add(new FriendRequest
+                            {
+                                Id = f.Id,
+                                SenderName = senderName
+                            });
+                        }
                     }
                 }
             }
@@ -166,11 +219,143 @@ namespace MauiApp2.Pages
             }
         }
 
+       
+
+        private async void OnOpenChatClicked(object sender, EventArgs e)
+        {
+            if (sender is Button btn && btn.CommandParameter is Guid friendshipId)
+            {
+                var friend = Friends.FirstOrDefault(f => f.Id == friendshipId);
+                if (friend == null) return;
+
+               
+                _currentChatPartnerId = (friend.UserId == _userId) ? friend.FriendUserId : friend.UserId;
+
+                
+                ChatPartnerNameLabel.Text = friend.FriendName;
+
+                // Megjelenítjük az ablakot
+                ChatOverlay.IsVisible = true;
+
+                // Üzenetek betöltése és feliratkozás
+                await LoadChatMessagesAsync();
+                await SubscribeToChatAsync();
+            }
+        }
+
+        private void OnCloseChatClicked(object sender, EventArgs e)
+        {
+            ChatOverlay.IsVisible = false;
+            CurrentChatMessages.Clear();
+
+            if (_chatChannel != null)
+            {
+                _chatChannel.Unsubscribe();
+                _chatChannel = null;
+            }
+        }
+
+        private async Task LoadChatMessagesAsync()
+        {
+            try
+            {
+                CurrentChatMessages.Clear();
+
+               
+                var oneHourAgo = DateTime.UtcNow.AddHours(-1);
+
+                var response = await _supabaseClient.From<PrivateMessage>()
+                    .Select("*")
+                    .Filter("created_at", Supabase.Postgrest.Constants.Operator.GreaterThan, oneHourAgo.ToString("o"))
+                    .Order("created_at", Supabase.Postgrest.Constants.Ordering.Ascending)
+                    .Get();
+
+                // Kliens oldali szûrés a két félre
+                var messages = response.Models.Where(m =>
+                    (m.SenderId == _userId && m.ReceiverId == _currentChatPartnerId) ||
+                    (m.SenderId == _currentChatPartnerId && m.ReceiverId == _userId)
+                ).ToList();
+
+                foreach (var msg in messages)
+                {
+                    msg.IsMine = msg.SenderId == _userId;
+                    CurrentChatMessages.Add(msg);
+                }
+
+                if (CurrentChatMessages.Count > 0)
+                {
+                    ChatMessagesCollectionView.ScrollTo(CurrentChatMessages.Last(), position: ScrollToPosition.End, animate: false);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Chat hiba: {ex.Message}");
+            }
+        }
+
+        private async void OnSendMessageClicked(object sender, EventArgs e)
+        {
+            var text = ChatMessageEntry?.Text?.Trim();
+            if (string.IsNullOrEmpty(text)) return;
+
+            try
+            {
+                var msg = new PrivateMessage
+                {
+                    SenderId = _userId,
+                    ReceiverId = _currentChatPartnerId,
+                    MessageText = text,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await _supabaseClient.From<PrivateMessage>().Insert(msg);
+
+                if (ChatMessageEntry != null) ChatMessageEntry.Text = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Hiba", "Nem sikerült elküldeni.", "OK");
+            }
+        }
+
+        private async Task SubscribeToChatAsync()
+        {
+            try
+            {
+                _chatChannel = _supabaseClient.Realtime.Channel("realtime:public:private_messages");
+
+                _chatChannel.AddPostgresChangeHandler(PostgresChangesOptions.ListenType.Inserts, async (sender, change) =>
+                {
+                    if (change.Payload?.Data == null) return;
+
+                    var newMsg = System.Text.Json.JsonSerializer.Deserialize<PrivateMessage>(change.Payload.Data.ToString());
+                    if (newMsg == null) return;
+
+                    bool isRelevant = (newMsg.SenderId == _userId && newMsg.ReceiverId == _currentChatPartnerId) ||
+                                      (newMsg.SenderId == _currentChatPartnerId && newMsg.ReceiverId == _userId);
+
+                    if (isRelevant)
+                    {
+                        await Dispatcher.DispatchAsync(() =>
+                        {
+                            newMsg.IsMine = newMsg.SenderId == _userId;
+                            CurrentChatMessages.Add(newMsg);
+                            ChatMessagesCollectionView.ScrollTo(newMsg, position: ScrollToPosition.End, animate: true);
+                        });
+                    }
+                });
+
+                _chatChannel.Subscribe();
+            }
+            catch { }
+        }
+
+        
+
         private void OnCommunityTabClicked(object sender, EventArgs e)
         {
             CommunityView.IsVisible = true;
             FriendsView.IsVisible = false;
-
             CommunityTabButton.BackgroundColor = Color.FromArgb("#9B59B6");
             FriendsTabButton.BackgroundColor = Colors.Transparent;
         }
@@ -179,16 +364,19 @@ namespace MauiApp2.Pages
         {
             CommunityView.IsVisible = false;
             FriendsView.IsVisible = true;
-
             FriendsTabButton.BackgroundColor = Color.FromArgb("#9B59B6");
             CommunityTabButton.BackgroundColor = Colors.Transparent;
+
             LoadFriendsAsync();
         }
+
+        
 
         private async void OnShowFriendCodeClicked(object sender, EventArgs e)
         {
             var code = string.IsNullOrWhiteSpace(_friendCode) ? "(nincs még létrehozva)" : _friendCode;
             await DisplayAlert("Saját barátkód", code, "OK");
+            await Clipboard.Default.SetTextAsync(code);
         }
 
         private async void OnFriendSearchCompleted(object sender, EventArgs e)
@@ -196,81 +384,124 @@ namespace MauiApp2.Pages
             var code = FriendSearchEntry?.Text?.Trim();
             if (string.IsNullOrEmpty(code)) return;
 
+            if (_userId == Guid.Empty)
+            {
+                await DisplayAlert("Hiba", "Nem vagy bejelentkezve.", "OK");
+                return;
+            }
+
             try
             {
+                
                 var res = await _supabaseClient.From<ProfileData>().Where(p => p.FriendCode == code).Get();
-                var prof = res.Models.FirstOrDefault();
-                if (prof == null)
+                var targetProfile = res.Models.FirstOrDefault();
+
+                if (targetProfile == null)
                 {
-                    await DisplayAlert("Nincs találat", "Nem található ilyen barátkód.", "OK");
+                    await DisplayAlert("Nincs találat", "Nem található felhasználó ezzel a barátkóddal.", "OK");
                     return;
                 }
 
-                var conf = await DisplayAlert("Barát hozzáadása",
-                    $"Szeretnéd hozzáadni: {prof.Description ?? prof.FriendCode}", "Igen", "Nem");
-                if (!conf) return;
+                if (targetProfile.UserId == _userId)
+                {
+                    await DisplayAlert("Hiba", "Ez a saját barátkódod.", "OK");
+                    return;
+                }
 
-                var friendGuid = prof.UserId;
+                bool confirm = await DisplayAlert("Barát hozzáadása",
+                    $"Szeretnéd hozzáadni õt (Barátkód: {targetProfile.FriendCode})?", "Igen", "Nem");
+                if (!confirm) return;
 
-                var existing = await _supabaseClient.From<Friend>()
-                    .Where(f => (f.UserId == _userId && f.FriendUserId == friendGuid)
-                             || (f.UserId == friendGuid && f.FriendUserId == _userId))
+                var targetUserId = targetProfile.UserId;
+
+                
+                var check1 = await _supabaseClient.From<Friend>()
+                    .Filter("user_id", Supabase.Postgrest.Constants.Operator.Equals, _userId.ToString())
+                    .Filter("friend_user_id", Supabase.Postgrest.Constants.Operator.Equals, targetUserId.ToString())
                     .Get();
 
-                if (existing.Models.Any())
+                var check2 = await _supabaseClient.From<Friend>()
+                    .Filter("user_id", Supabase.Postgrest.Constants.Operator.Equals, targetUserId.ToString())
+                    .Filter("friend_user_id", Supabase.Postgrest.Constants.Operator.Equals, _userId.ToString())
+                    .Get();
+
+                if (check1.Models.Any() || check2.Models.Any())
                 {
-                    await DisplayAlert("Hiba", "Már létezik kapcsolat vagy függõ kérelem.", "OK");
+                    await DisplayAlert("Infó", "Már van köztetek kapcsolat.", "OK");
                     return;
                 }
 
-                var newReq = new Friend
+                
+                var newRequest = new Friend
                 {
-                    Id = Guid.NewGuid(),
                     UserId = _userId,
-                    FriendUserId = friendGuid,
+                    FriendUserId = targetUserId,
                     IsAccepted = false
                 };
-                await _supabaseClient.From<Friend>().Insert(newReq);
+
+                await _supabaseClient.From<Friend>().Insert(newRequest);
+
                 await DisplayAlert("Siker", "Barátkérelem elküldve!", "OK");
+                if (FriendSearchEntry != null) FriendSearchEntry.Text = string.Empty;
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Hiba", $"Keresés sikertelen: {ex.Message}", "OK");
+                await DisplayAlert("Hiba", $"Hiba: {ex.Message}", "OK");
             }
         }
 
-        private async void OnAddFriendClicked(object sender, EventArgs e) => OnFriendSearchCompleted(sender, e);
+        private void OnAddFriendClicked(object sender, EventArgs e) => OnFriendSearchCompleted(sender, e);
 
         private async void OnAcceptFriendClicked(object sender, EventArgs e)
         {
-            if (sender is Button btn && btn.CommandParameter is Guid id)
+            if (sender is Button btn && btn.CommandParameter is Guid friendshipId)
             {
-                await _supabaseClient.From<Friend>().Where(f => f.Id == id).Set(f => f.IsAccepted, true).Update();
-                LoadFriendsAsync();
+                try
+                {
+                    await _supabaseClient.From<Friend>()
+                        .Where(f => f.Id == friendshipId)
+                        .Set(f => f.IsAccepted, true)
+                        .Update();
+
+                    LoadFriendsAsync();
+                }
+                catch (Exception ex)
+                {
+                    await DisplayAlert("Hiba", $"Hiba: {ex.Message}", "OK");
+                }
             }
         }
 
         private async void OnDeclineFriendClicked(object sender, EventArgs e)
         {
-            if (sender is Button btn && btn.CommandParameter is Guid id)
+            if (sender is Button btn && btn.CommandParameter is Guid friendshipId)
             {
-                await _supabaseClient.From<Friend>().Where(f => f.Id == id).Delete();
-                LoadFriendsAsync();
+                try
+                {
+                    await _supabaseClient.From<Friend>().Where(f => f.Id == friendshipId).Delete();
+                    LoadFriendsAsync();
+                }
+                catch { }
             }
         }
 
         private async void OnDeleteFriendClicked(object sender, EventArgs e)
         {
-            if (sender is Button btn && btn.CommandParameter is Guid id)
+            if (sender is Button btn && btn.CommandParameter is Guid friendshipId)
             {
-                await _supabaseClient.From<Friend>().Where(f => f.Id == id).Delete();
-                LoadFriendsAsync();
+                bool confirm = await DisplayAlert("Törlés", "Biztosan törlöd a barátot?", "Igen", "Mégse");
+                if (!confirm) return;
+
+                try
+                {
+                    await _supabaseClient.From<Friend>().Where(f => f.Id == friendshipId).Delete();
+                    LoadFriendsAsync();
+                }
+                catch { }
             }
         }
 
-        // =========================
-        // ===== TOPICOK & KOMMENT =====
-        // =========================
+     
         private async void LoadEventsAsync()
         {
             try
@@ -279,12 +510,10 @@ namespace MauiApp2.Pages
                 AvailableEvents = new ObservableCollection<Event>(response.Models);
                 FilteredEvents = new ObservableCollection<Event>(AvailableEvents);
             }
-            catch (Exception ex)
-            {
-                await DisplayAlert("Hiba", $"Események betöltése sikertelen: {ex.Message}", "OK");
-            }
+            catch { }
         }
 
+       
         private async void LoadTopicsAsync()
         {
             try
@@ -305,52 +534,63 @@ namespace MauiApp2.Pages
                         Comments = new ObservableCollection<TopicComment>()
                     };
 
-                    // kommentek
                     var commentResp = await _supabaseClient.From<TopicComment>()
                         .Where(c => c.TopicId == t.Id).Get();
 
-                    topic.Comments = new ObservableCollection<TopicComment>(commentResp.Models);
+                    var commentsWithNames = new List<TopicComment>();
+                    foreach (var c in commentResp.Models)
+                    {
+                       
+                        var userResp = await _supabaseClient.From<MauiApp2.Models.User>()
+                                            .Filter("id", Supabase.Postgrest.Constants.Operator.Equals, c.UserId)
+                                            .Get();
+                        var user = userResp.Models.FirstOrDefault();
+
+                        
+                        c.UserName = user?.Username ?? "Névtelen felhasználó";
+                        commentsWithNames.Add(c);
+                    }
+
+                    topic.Comments = new ObservableCollection<TopicComment>(commentsWithNames);
                     topic.CommentCount = topic.Comments.Count;
 
-                    // esemény link (ha nincs cache-ben, lekéri külön)
-                    var eventLink = await _supabaseClient.From<TopicEvent>()
-                        .Where(te => te.TopicId == t.Id).Single();
-
-                    if (eventLink != null)
+                    
+                    try
                     {
-                        var evt = AvailableEvents.FirstOrDefault(e => e.Id == eventLink.EventId);
-                        if (evt == null)
+                        var eventLinkResp = await _supabaseClient.From<TopicEvent>()
+                            .Where(te => te.TopicId == t.Id).Get();
+                        var eventLink = eventLinkResp.Models.FirstOrDefault();
+                        if (eventLink != null)
                         {
-                            var evtResp = await _supabaseClient.From<Event>()
-                                .Where(e => e.Id == eventLink.EventId).Single();
-                            if (evtResp != null) evt = evtResp;
-                        }
-
-                        if (evt != null)
-                        {
-                            topic.LinkedEvent = evt;
-                            topic.HasEvent = true;
+                            var evt = AvailableEvents.FirstOrDefault(e => e.Id == eventLink.EventId);
+                            if (evt != null)
+                            {
+                                topic.LinkedEvent = evt;
+                                topic.HasEvent = true;
+                            }
                         }
                     }
+                    catch { }
 
-                    // fotó
-                    var photo = await _supabaseClient.From<TopicPhoto>()
-                        .Where(tp => tp.TopicId == t.Id).Single();
-                    if (photo != null)
+                  
+                    try
                     {
-                        topic.PhotoUrl = photo.PhotoUrl;
-                        topic.HasPhoto = true;
+                        var photoResp = await _supabaseClient.From<TopicPhoto>()
+                            .Where(tp => tp.TopicId == t.Id).Get();
+                        var photo = photoResp.Models.FirstOrDefault();
+                        if (photo != null)
+                        {
+                            topic.PhotoUrl = photo.PhotoUrl;
+                            topic.HasPhoto = true;
+                        }
                     }
+                    catch { }
 
                     topics.Add(topic);
                 }
-
                 Topics = new ObservableCollection<Topic>(topics.OrderByDescending(t => t.CreatedAt));
             }
-            catch (Exception ex)
-            {
-                await DisplayAlert("Hiba", $"Topic-ok betöltése sikertelen: {ex.Message}", "OK");
-            }
+            catch { }
         }
 
         private async void SubscribeToComments()
@@ -361,8 +601,19 @@ namespace MauiApp2.Pages
                 channel.AddPostgresChangeHandler(PostgresChangesOptions.ListenType.Inserts, async (sender, change) =>
                 {
                     if (change.Payload?.Data == null) return;
-                    var newComment = JsonSerializer.Deserialize<TopicComment>(change.Payload.Data.ToString());
+                    var newComment = System.Text.Json.JsonSerializer.Deserialize<TopicComment>(change.Payload.Data.ToString());
                     if (newComment == null) return;
+
+                    
+                    try
+                    {
+                        var userResp = await _supabaseClient.From<MauiApp2.Models.User>()
+                                            .Filter("id", Supabase.Postgrest.Constants.Operator.Equals, newComment.UserId)
+                                            .Get();
+                        var user = userResp.Models.FirstOrDefault();
+                        newComment.UserName = user?.Username ?? "Új hozzászóló";
+                    }
+                    catch { newComment.UserName = "Új hozzászóló"; }
 
                     var topic = Topics?.FirstOrDefault(t => t.Id == newComment.TopicId);
                     if (topic != null)
@@ -374,47 +625,72 @@ namespace MauiApp2.Pages
                         });
                     }
                 });
-                await channel.Subscribe();
+
+                channel.Subscribe();
             }
-            catch (Exception ex)
-            {
-                await DisplayAlert("Hiba", $"Realtime elõfizetés sikertelen: {ex.Message}", "OK");
-            }
+            catch { }
         }
+
+        
 
         private void OnEventSearchTextChanged(object sender, TextChangedEventArgs e)
         {
-            var s = (e.NewTextValue ?? string.Empty).Trim().ToLowerInvariant();
-            var src = AvailableEvents ?? new ObservableCollection<Event>();
-            FilteredEvents = new ObservableCollection<Event>(src.Where(ev =>
-                (ev.EventName ?? string.Empty).ToLowerInvariant().Contains(s)));
+            
+            if (_isProgrammaticUpdate) return;
 
+            var s = (e.NewTextValue ?? string.Empty).Trim().ToLowerInvariant();
+
+            if (string.IsNullOrEmpty(s))
+            {
+                FilteredEvents = null;
+                _selectedEvent = null;
+                return;
+            }
+
+            var src = AvailableEvents ?? new ObservableCollection<Event>();
+            var results = src.Where(ev =>
+                (ev.EventName ?? string.Empty).ToLowerInvariant().Contains(s)).ToList();
+
+            
+            FilteredEvents = results.Any() ? new ObservableCollection<Event>(results) : null;
             OnPropertyChanged(nameof(FilteredEvents));
         }
 
-        // Stabilizált eseményválasztás — debounce + SelectedItem nullázás
-        private async void OnEventSuggestionSelected(object sender, SelectionChangedEventArgs e)
+        private async void OnEventSuggestionTapped(object sender, EventArgs e)
         {
             try
             {
-                if (DateTime.UtcNow - _lastEventPickAt < _debounce) return;
-                _lastEventPickAt = DateTime.UtcNow;
-
-                if (e.CurrentSelection.FirstOrDefault() is Event sel)
+                
+                if (sender is BindableObject bo && bo.BindingContext is Event sel)
                 {
                     _selectedEvent = sel;
-                    if (EventSearchEntry != null) EventSearchEntry.Text = sel.EventName;
-                    FilteredEvents?.Clear();
 
-                    // mindig nullázzuk a kijelölést
-                    if (sender is CollectionView cv) cv.SelectedItem = null;
+                    
+                    _isProgrammaticUpdate = true;
+
+                    if (EventSearchEntry != null)
+                    {
+                        EventSearchEntry.Text = sel.EventName;
+                        
+                        try { EventSearchEntry.CursorPosition = sel.EventName.Length; } catch { }
+                        
+                        EventSearchEntry.Unfocus();
+                    }
+
+                    _isProgrammaticUpdate = false;
+
+                    
+                    FilteredEvents = null;
+                    OnPropertyChanged(nameof(FilteredEvents));
                 }
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Hiba", $"Esemény kiválasztási hiba: {ex.Message}", "OK");
+                Console.WriteLine($"Esemény választási hiba: {ex.Message}");
             }
         }
+
+       
 
         private async void OnCreateTopicClicked(object sender, EventArgs e)
         {
@@ -422,18 +698,10 @@ namespace MauiApp2.Pages
             {
                 var title = TopicTitleEntry?.Text?.Trim();
                 var desc = TopicDescriptionEditor?.Text?.Trim();
-                if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(desc))
-                {
-                    await DisplayAlert("Hiba", "Adj meg címet és leírást!", "OK");
-                    return;
-                }
+                if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(desc)) return;
 
                 var user = _supabaseClient.Auth.CurrentUser;
-                if (user == null)
-                {
-                    await DisplayAlert("Hiba", "Jelentkezz be!", "OK");
-                    return;
-                }
+                if (user == null) return;
 
                 var topicModel = new TopicModel
                 {
@@ -458,7 +726,6 @@ namespace MauiApp2.Pages
                     await _supabaseClient.From<TopicPhoto>().Insert(new TopicPhoto { TopicId = topic.Id, PhotoUrl = url });
                 }
 
-                // ûrlap ürítés
                 if (TopicTitleEntry != null) TopicTitleEntry.Text = string.Empty;
                 if (TopicDescriptionEditor != null) TopicDescriptionEditor.Text = string.Empty;
                 if (EventSearchEntry != null) EventSearchEntry.Text = string.Empty;
@@ -480,23 +747,18 @@ namespace MauiApp2.Pages
                 var file = await FilePicker.PickAsync(new PickOptions { FileTypes = FilePickerFileType.Images });
                 if (file != null) _selectedPhotoPath = file.FullPath;
             }
-            catch (Exception ex)
-            {
-                await DisplayAlert("Hiba", $"Kép kiválasztása sikertelen: {ex.Message}", "OK");
-            }
+            catch { }
         }
 
-        // Ha SelectionChanged-et használsz XAML-ben:
         private async void OnTopicSelected(object sender, SelectionChangedEventArgs e)
         {
             if (e.CurrentSelection.FirstOrDefault() is Topic t)
             {
                 await OpenTopicAsync(t);
-                if (sender is CollectionView cv) cv.SelectedItem = null; // mindig nullázzuk
+                if (sender is CollectionView cv) cv.SelectedItem = null;
             }
         }
 
-        // Ha TapGestureRecognizer-t használsz XAML-ben:
         private async void OnTopicTapped(object sender, EventArgs e)
         {
             if (sender is BindableObject bo && bo.BindingContext is Topic t)
@@ -517,9 +779,6 @@ namespace MauiApp2.Pages
                 SelectedTopic = t;
                 CommunityView.IsVisible = false;
                 DetailFrame.IsVisible = true;
-
-                // (opcionálisan) frissítjük a kommenteket real-time-ra kész állapotba
-                // de itt nem kell külön API hívás, mert már betöltöttük
             }
             finally
             {
@@ -552,7 +811,20 @@ namespace MauiApp2.Pages
                     CreatedAt = DateTime.UtcNow
                 };
                 var res = await _supabaseClient.From<TopicComment>().Insert(c);
+
+                
                 var added = res.Models.First();
+
+                
+                try
+                {
+                    var userResp = await _supabaseClient.From<MauiApp2.Models.User>()
+                                        .Filter("id", Supabase.Postgrest.Constants.Operator.Equals, user.Id)
+                                        .Get();
+                    added.UserName = userResp.Models.FirstOrDefault()?.Username ?? "Én";
+                }
+                catch { added.UserName = "Én"; }
+
                 SelectedTopic.Comments.Add(added);
                 if (CommentEditor != null) CommentEditor.Text = string.Empty;
             }
@@ -563,7 +835,8 @@ namespace MauiApp2.Pages
         }
     }
 
-    // ======= MODELLEK =======
+   
+
     [Table("friends")]
     public class Friend : BaseModel
     {
@@ -571,6 +844,8 @@ namespace MauiApp2.Pages
         [Column("user_id")] public Guid UserId { get; set; }
         [Column("friend_user_id")] public Guid FriendUserId { get; set; }
         [Column("is_accepted")] public bool IsAccepted { get; set; }
+
+        [Newtonsoft.Json.JsonIgnore]
         public string FriendName { get; set; } = string.Empty;
     }
 
@@ -580,7 +855,6 @@ namespace MauiApp2.Pages
         public string SenderName { get; set; } = string.Empty;
     }
 
-    // ==== Topic modellek ====
     [Table("topics")]
     public class TopicModel : BaseModel
     {
@@ -614,6 +888,10 @@ namespace MauiApp2.Pages
         [Column("user_id")] public string UserId { get; set; } = string.Empty;
         [Column("comment_text")] public string CommentText { get; set; } = string.Empty;
         [Column("created_at")] public DateTime CreatedAt { get; set; }
+
+        
+        [Newtonsoft.Json.JsonIgnore]
+        public string UserName { get; set; } = string.Empty;
     }
 
     [Table("topic_events")]

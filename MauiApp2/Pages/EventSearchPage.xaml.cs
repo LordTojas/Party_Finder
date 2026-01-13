@@ -17,15 +17,25 @@ namespace MauiApp2.Pages
         private ObservableCollection<Event> _allEvents;
         private ObservableCollection<Event> _filteredEvents;
 
-        // Szűrő mezők értékei
+       
+        public int UserAge { get; set; } = 0;
+
+        
         public string SearchName { get; set; } = string.Empty;
         public string SelectedMusicGenre { get; set; } = string.Empty;
         public string SelectedAgeGroup { get; set; } = "Nincs Korhatár";
         public DateTime? StartDateFilter { get; set; }
         public DateTime? EndDateFilter { get; set; }
 
-        public List<string> AgeGroups { get; set; } = new() { "Nincs Korhatár", "Korhatáros (18+)" };
-        public List<string> MusicGenres { get; set; } = new() { "Minden", "Pop", "Rock", "Jazz", "Elektronikus", "Klasszikus", "Egyéb" };
+        public List<string> AgeGroups { get; set; } = new()
+        {
+            "Nincs Korhatár", "Korhatáros (18+)"
+        };
+
+        public List<string> MusicGenres { get; set; } = new()
+        {
+            "Minden", "Pop", "Rock", "Jazz", "Elektronikus", "Klasszikus", "Egyéb"
+        };
 
         public ObservableCollection<Event> FilteredEvents
         {
@@ -56,9 +66,41 @@ namespace MauiApp2.Pages
         protected override async void OnAppearing()
         {
             base.OnAppearing();
+            await LoadUserAge();     
             await RequestLocationPermission();
             await LoadEvents();
         }
+
+        
+        private async Task LoadUserAge()
+        {
+            try
+            {
+                var authUser = _supabaseClient.Auth.CurrentUser;
+
+                if (authUser == null)
+                {
+                    UserAge = 0;
+                    return;
+                }
+
+                var response = await _supabaseClient
+                    .From<MauiApp2.Models.User>()
+                    .Where(u => u.Id == authUser.Id)
+                    .Single();
+
+                if (response != null)
+                    UserAge = response.Age;
+                else
+                    UserAge = 0;
+            }
+            catch
+            {
+                UserAge = 0;
+            }
+        }
+
+      
 
         private async Task RequestLocationPermission()
         {
@@ -88,13 +130,19 @@ namespace MauiApp2.Pages
                 {
                     foreach (var evt in response.Models)
                     {
-                        // Lekérjük a készítő nevét RPC-n keresztül
-                        var creatorNameResponse = await _supabaseClient.Rpc("get_user_name", new { user_id = evt.UserId });
+                        var creatorNameResponse =
+                            await _supabaseClient.Rpc("get_user_name", new { user_id = evt.UserId });
+
                         evt.CreatorName = creatorNameResponse?.Content ?? "Ismeretlen";
 
-                        evt.ShowCreatorDetailsCommand = new Command(async () => await ShowCreatorDetails(evt.UserId, evt.CreatorName));
-                        evt.LikeCommand = new Command<long>(async (eventId) => await OnLikeClicked(eventId));
-                        evt.BeThereCommand = new Command<long>(async (eventId) => await OnBeThereClicked(eventId));
+                        evt.ShowCreatorDetailsCommand = new Command(async () =>
+                            await ShowCreatorDetails(evt.UserId, evt.CreatorName));
+
+                        evt.LikeCommand = new Command<long>(async (eventId) =>
+                            await OnLikeClicked(eventId));
+
+                        evt.BeThereCommand = new Command<long>(async (eventId) =>
+                            await OnBeThereClicked(eventId));
 
                         _allEvents.Add(evt);
                     }
@@ -117,29 +165,52 @@ namespace MauiApp2.Pages
         {
             try
             {
-                var location = await GetCurrentLocation() ?? new Location(47.4979, 19.0402); // Budapest fallback
+                var location = await GetCurrentLocation() ??
+                               new Location(47.4979, 19.0402); 
+
                 double radiusKm = RadiusSlider.Value;
 
                 var filtered = _allEvents.Where(evt =>
                 {
+                    
                     bool isWithinRadius = true;
 
                     if (evt.Latitude.HasValue && evt.Longitude.HasValue)
                     {
-                        double distance = CalculateDistance(location.Latitude, location.Longitude, evt.Latitude.Value, evt.Longitude.Value);
+                        double distance = CalculateDistance(
+                            location.Latitude,
+                            location.Longitude,
+                            evt.Latitude.Value,
+                            evt.Longitude.Value
+                        );
                         isWithinRadius = distance <= radiusKm;
                     }
 
-                    bool isAgeMatch = string.IsNullOrEmpty(SelectedAgeGroup)
-                        || SelectedAgeGroup == "Minden"
-                        || evt.AgeRestriction?.Trim().ToLower() == SelectedAgeGroup.Trim().ToLower();
+                   
+                    if (UserAge > 0 && UserAge < 18)
+                    {
+                        if (!string.IsNullOrEmpty(evt.AgeRestriction) &&
+                            evt.AgeRestriction.Contains("18"))
+                        {
+                            return false;
+                        }
+                    }
 
-                    bool isNameMatch = string.IsNullOrEmpty(SearchName)
+                    bool isAgePickerMatch =
+                        SelectedAgeGroup == "Minden"
+                        || string.IsNullOrEmpty(SelectedAgeGroup)
+                        || (evt.AgeRestriction?.Equals(SelectedAgeGroup,
+                            StringComparison.OrdinalIgnoreCase) ?? false);
+
+                    bool isNameMatch =
+                        string.IsNullOrEmpty(SearchName)
                         || evt.EventName.Contains(SearchName, StringComparison.OrdinalIgnoreCase);
 
-                    bool isMusicMatch = string.IsNullOrEmpty(SelectedMusicGenre)
-                        || SelectedMusicGenre == "Minden"
-                        || (evt.MusicGenre?.Equals(SelectedMusicGenre, StringComparison.OrdinalIgnoreCase) ?? false);
+                    bool isMusicMatch =
+                        SelectedMusicGenre == "Minden"
+                        || string.IsNullOrEmpty(SelectedMusicGenre)
+                        || (evt.MusicGenre?.Equals(SelectedMusicGenre,
+                            StringComparison.OrdinalIgnoreCase) ?? false);
 
                     bool isDateMatch = true;
                     if (StartDateFilter.HasValue)
@@ -147,7 +218,8 @@ namespace MauiApp2.Pages
                     if (EndDateFilter.HasValue)
                         isDateMatch &= evt.EndDate.Date <= EndDateFilter.Value.Date;
 
-                    return isWithinRadius && isAgeMatch && isNameMatch && isMusicMatch && isDateMatch;
+                    return isWithinRadius && isAgePickerMatch &&
+                           isNameMatch && isMusicMatch && isDateMatch;
                 }).ToList();
 
                 FilteredEvents = new ObservableCollection<Event>(filtered);
@@ -165,10 +237,7 @@ namespace MauiApp2.Pages
                 var request = new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(10));
                 return await Geolocation.GetLocationAsync(request);
             }
-            catch
-            {
-                return null;
-            }
+            catch { return null; }
         }
 
         private double CalculateDistance(double lat1, double lon1, double lat2, double lon2)
@@ -176,9 +245,10 @@ namespace MauiApp2.Pages
             const double R = 6371;
             double dLat = (lat2 - lat1) * Math.PI / 180;
             double dLon = (lon2 - lon1) * Math.PI / 180;
-            double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
-                       Math.Cos(lat1 * Math.PI / 180) * Math.Cos(lat2 * Math.PI / 180) *
-                       Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+            double a =
+                Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                Math.Cos(lat1 * Math.PI / 180) * Math.Cos(lat2 * Math.PI / 180) *
+                Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
             double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
             return R * c;
         }
@@ -188,6 +258,7 @@ namespace MauiApp2.Pages
             try
             {
                 var user = _supabaseClient.Auth.CurrentUser;
+
                 if (user == null)
                 {
                     await DisplayAlert("Bejelentkezés szükséges", "Kérlek, jelentkezz be a kedveléshez.", "OK");
@@ -213,7 +284,12 @@ namespace MauiApp2.Pages
                 }
                 else
                 {
-                    var like = new Liked { UserId = user.Id, EventId = eventId, CreatedAt = DateTime.UtcNow };
+                    var like = new Liked
+                    {
+                        UserId = user.Id,
+                        EventId = eventId,
+                        CreatedAt = DateTime.UtcNow
+                    };
                     await _supabaseClient.From<Liked>().Insert(like);
                     await DisplayAlert("Siker", "Esemény kedvelve!", "OK");
                 }
@@ -229,6 +305,7 @@ namespace MauiApp2.Pages
             try
             {
                 var user = _supabaseClient.Auth.CurrentUser;
+
                 if (user == null)
                 {
                     await DisplayAlert("Bejelentkezés szükséges", "Kérlek, jelentkezz be!", "OK");
@@ -254,7 +331,13 @@ namespace MauiApp2.Pages
                 }
                 else
                 {
-                    var beThere = new BeThere { UserId = user.Id, EventId = eventId, CreatedAt = DateTime.UtcNow };
+                    var beThere = new BeThere
+                    {
+                        UserId = user.Id,
+                        EventId = eventId,
+                        CreatedAt = DateTime.UtcNow
+                    };
+
                     await _supabaseClient.From<BeThere>().Insert(beThere);
                     await DisplayAlert("Siker", "Részvétel rögzítve!", "OK");
                 }
@@ -269,27 +352,35 @@ namespace MauiApp2.Pages
         {
             try
             {
-                var createdEventsResponse = await _supabaseClient.From<Event>().Where(e => e.UserId == creatorId).Get();
+                var createdEventsResponse = await _supabaseClient
+                    .From<Event>()
+                    .Where(e => e.UserId == creatorId)
+                    .Get();
+
                 int createdEventsCount = createdEventsResponse.Models?.Count ?? 0;
 
-                double averageRating = 0;
+                double avgRating = 0;
+
                 if (createdEventsCount > 0)
                 {
                     var eventIds = createdEventsResponse.Models.Select(e => e.Id).ToList();
+
                     var ratingsResponse = await _supabaseClient
                         .From<EventRatings>()
                         .Filter("event_id", Constants.Operator.In, eventIds)
                         .Get();
 
                     if (ratingsResponse.Models != null && ratingsResponse.Models.Any())
-                        averageRating = ratingsResponse.Models.Average(r => r.Rating);
+                        avgRating = ratingsResponse.Models.Average(r => r.Rating);
                 }
 
-                string msg = $"{creatorName} adatai:\n\n" +
-                             $"📅 Készített események: {createdEventsCount}\n" +
-                             $"⭐ Átlagos értékelés: {(averageRating > 0 ? averageRating.ToString("F1") : "Nincs értékelés")}";
+                string msg =
+                    "Keszito adatai:\n" +
+                    "Keszitett esemenyek: " + createdEventsCount + "\n" +
+                    "Atlagos ertekeles: " +
+                    (avgRating > 0 ? avgRating.ToString("F1") : "Nincs ertekeles");
 
-                await DisplayAlert("Készítő adatai", msg, "OK");
+                await DisplayAlert("Keszito adatai", msg, "OK");
             }
             catch (Exception ex)
             {

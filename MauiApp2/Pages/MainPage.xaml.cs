@@ -17,7 +17,7 @@ namespace MauiApp2.Pages
             InitializeComponent();
             _supabaseClient = supabaseClient;
 
-            var ages = Enumerable.Range(18, 83).ToList(); // 18-tól 100-ig
+            var ages = Enumerable.Range(18, 83).ToList(); 
             AgePicker.ItemsSource = ages;
         }
 
@@ -30,13 +30,13 @@ namespace MauiApp2.Pages
 
             try
             {
-                // 1. Felhasználó regisztrálása metaadatokkal
+                
                 Supabase.Gotrue.Session signUpResponse = null;
                 try
                 {
                     signUpResponse = await _supabaseClient.Auth.SignUp(
-                        EmailEntry.Text, // Email közvetlenül a SignUp paramétereként
-                        PasswordEntry.Text, // Jelszó közvetlenül a SignUp paramétereként
+                        EmailEntry.Text, 
+                        PasswordEntry.Text, 
                         new Supabase.Gotrue.SignUpOptions
                         {
                             Data = new Dictionary<string, object>
@@ -63,7 +63,7 @@ namespace MauiApp2.Pages
                 Console.WriteLine($"Felhasználó regisztrálva: {signUpResponse.User.Email}");
                 await DisplayAlert("Debug", $"auth.uid(): {signUpResponse.User.Id}", "OK");
 
-                // 2. Bejelentkeztetjük a felhasználót
+                
                 Supabase.Gotrue.Session signInResponse = null;
                 try
                 {
@@ -81,8 +81,7 @@ namespace MauiApp2.Pages
                     return;
                 }
 
-                // A trigger automatikusan beszúrja a rekordot a users táblába,
-                // így nem kell manuálisan Insert hívást végezni
+                
 
                 Console.WriteLine("Felhasználó mentve a saját Users táblába is (trigger által).");
                 await DisplayAlert("Siker", "Fiók létrehozva!", "OK");

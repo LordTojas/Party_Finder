@@ -56,7 +56,7 @@ namespace MauiApp2
                 if (session == null || session.User == null)
                 {
                     Console.WriteLine("Nincs bejelentkezve – maradunk WelcomePage-en");
-                    // Nem kell navigálni, mert ez az alapértelmezett oldal
+                  
                 }
                 else
                 {

@@ -106,7 +106,7 @@ namespace MauiApp2.Pages
 
                 Console.WriteLine($"Bejelentkezett felhasználó: {user.Id}");
 
-                // Felhasználó nevének lekérése biztonságosan
+                
                 string fullName = null;
                 if (user.UserMetadata != null && user.UserMetadata.TryGetValue("full_name", out var fullNameObj))
                 {
@@ -115,8 +115,7 @@ namespace MauiApp2.Pages
                 UserName = fullName ?? user.Email ?? "Felhasználó";
                 Console.WriteLine($"Felhasználó neve: {UserName}");
 
-                // Statisztikák kiszámítása
-                // 1. Hány eseményen jelezte, hogy ott lesz (BeThere tábla)
+                
                 var beThereResponse = await _supabaseClient
                     .From<BeThere>()
                     .Where(b => b.UserId == user.Id)
@@ -130,7 +129,7 @@ namespace MauiApp2.Pages
                     Console.WriteLine($"Felhasználó ID (user.Id): {user.Id}");
                 }
 
-                // 2. Hány eseményt készített (Events tábla, user_id alapján)
+                
                 var createdEventsResponse = await _supabaseClient
                     .From<Event>()
                     .Where(e => e.UserId == user.Id)
@@ -144,7 +143,7 @@ namespace MauiApp2.Pages
                     Console.WriteLine($"Felhasználó ID (user.Id): {user.Id}");
                 }
 
-                // 3. Átlagos értékelés más felhasználóktól (EventRatings tábla)
+                
                 if (CreatedEventsCount > 0)
                 {
                     var createdEventIds = createdEventsResponse.Models.Select(e => e.Id).ToList();
@@ -170,13 +169,13 @@ namespace MauiApp2.Pages
                     Console.WriteLine("Nincsenek készített események, így nincs átlagos értékelés.");
                 }
 
-                // Betöltjük a felhasználó mentett eseményeit a BeThere táblából
+                
                 if (beThereResponse.Models != null && beThereResponse.Models.Any())
                 {
                     var eventIds = beThereResponse.Models.Select(b => b.EventId).ToList();
                     Console.WriteLine($"Mentett események ID-i: {string.Join(", ", eventIds)}");
 
-                    // Események lekérdezése a Filter metódussal
+                    
                     var eventsResponse = await _supabaseClient
                         .From<Event>()
                         .Filter("id", Constants.Operator.In, eventIds)
@@ -186,7 +185,7 @@ namespace MauiApp2.Pages
 
                     if (eventsResponse.Models != null && eventsResponse.Models.Any())
                     {
-                        // Betöltjük a felhasználó korábbi értékeléseit
+                        
                         var ratingsResponse = await _supabaseClient
                             .From<EventRatings>()
                             .Filter("user_id", Constants.Operator.Equals, user.Id)
@@ -200,7 +199,7 @@ namespace MauiApp2.Pages
                         foreach (var evt in eventsResponse.Models)
                         {
                             evt.SaveRatingCommand = new Command<long>(async (eventId) => await SaveRatingAsync(eventId, evt.Rating));
-                            evt.Rating = ratings.ContainsKey(evt.Id) ? ratings[evt.Id] : 0; // Ha van korábbi értékelés, azt használjuk
+                            evt.Rating = ratings.ContainsKey(evt.Id) ? ratings[evt.Id] : 0; 
                             Console.WriteLine($"Esemény betöltve: {evt.EventName}, Rating: {evt.Rating}");
                         }
 
@@ -244,7 +243,7 @@ namespace MauiApp2.Pages
                     return;
                 }
 
-                // Ellenõrizzük, hogy a felhasználó már értékelte-e az eseményt
+                
                 var existingRating = await _supabaseClient
                     .From<EventRatings>()
                     .Where(r => r.UserId == user.Id && r.EventId == eventId)
@@ -252,7 +251,7 @@ namespace MauiApp2.Pages
 
                 if (existingRating.Models.Any())
                 {
-                    // Ha már létezik értékelés, frissítjük
+                    
                     await _supabaseClient
                         .From<EventRatings>()
                         .Where(r => r.UserId == user.Id && r.EventId == eventId)
@@ -262,7 +261,7 @@ namespace MauiApp2.Pages
                 }
                 else
                 {
-                    // Ha még nem értékelte, új rekordot hozunk létre
+                   
                     var eventRating = new EventRatings
                     {
                         UserId = user.Id,

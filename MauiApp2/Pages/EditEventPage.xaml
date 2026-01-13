@@ -9,7 +9,7 @@
     <ScrollView>
         <VerticalStackLayout Padding="25" Spacing="25">
 
-            <!-- Címsor -->
+            
             <Label Text="📝 Esemény módosítása"
                    FontSize="26"
                    FontAttributes="Bold"
@@ -18,7 +18,7 @@
                    HorizontalTextAlignment="Center"
                    Margin="0,10,0,10" />
 
-            <!-- Esemény neve -->
+           
             <Frame BackgroundColor="#2B2B3F" CornerRadius="12" Padding="15" HasShadow="False">
                 <VerticalStackLayout Spacing="5">
                     <Label Text="Esemény neve" FontSize="16" TextColor="#CCCCCC" />
@@ -31,7 +31,7 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Helyszín -->
+            
             <Frame BackgroundColor="#2B2B3F" CornerRadius="12" Padding="15" HasShadow="False">
                 <VerticalStackLayout Spacing="5">
                     <Label Text="Helyszín" FontSize="16" TextColor="#CCCCCC" />
@@ -45,7 +45,7 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Helyszín javaslatok -->
+           
             <CollectionView x:Name="SuggestionsList"
                             IsVisible="False"
                             ItemsSource="{Binding CurrentSuggestions}"
@@ -67,7 +67,7 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <!-- Pozíció gomb -->
+            
             <Button Text="📍 Jelenlegi pozíció használata"
                     BackgroundColor="#4CAF50"
                     TextColor="White"
@@ -75,7 +75,7 @@
                     HeightRequest="45"
                     Clicked="OnUseCurrentLocationClicked" />
 
-            <!-- Térkép -->
+            
             <Frame BackgroundColor="#2B2B3F"
                    CornerRadius="12"
                    HasShadow="False"
@@ -85,7 +85,7 @@
                           MapType="Street" />
             </Frame>
 
-            <!-- Kezdés dátuma -->
+            
             <Frame BackgroundColor="#2B2B3F" CornerRadius="12" Padding="15" HasShadow="False">
                 <VerticalStackLayout Spacing="5">
                     <Label Text="Kezdés dátuma" FontSize="16" TextColor="#CCCCCC" />
@@ -100,7 +100,7 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Vége dátuma -->
+           
             <Frame BackgroundColor="#2B2B3F" CornerRadius="12" Padding="15" HasShadow="False">
                 <VerticalStackLayout Spacing="5">
                     <Label Text="Vége dátuma" FontSize="16" TextColor="#CCCCCC" />
@@ -115,7 +115,7 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Korhatár -->
+            
             <Frame BackgroundColor="#2B2B3F" CornerRadius="12" Padding="15" HasShadow="False">
                 <VerticalStackLayout Spacing="5">
                     <Label Text="Korhatár" FontSize="16" TextColor="#CCCCCC" />
@@ -128,7 +128,7 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Kategória -->
+           
             <Frame BackgroundColor="#2B2B3F" CornerRadius="12" Padding="15" HasShadow="False">
                 <VerticalStackLayout Spacing="5">
                     <Label Text="Kategória" FontSize="16" TextColor="#CCCCCC" />
@@ -142,7 +142,7 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Zenei műfaj -->
+            
             <Frame BackgroundColor="#2B2B3F"
                    CornerRadius="12"
                    Padding="15"
@@ -161,7 +161,7 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Módosítás gomb -->
+            
             <Button Text="💾 Módosítás mentése"
                     FontSize="18"
                     FontAttributes="Bold"

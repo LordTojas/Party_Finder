@@ -18,7 +18,7 @@ namespace MauiApp2.Pages
         private Event _event;
         private List<PlaceSuggestion> _currentSuggestions;
 
-        // Binding tulajdonságok
+        
         public string EventName { get; set; }
         public string Location { get; set; }
         public DateTime StartDate { get; set; }
@@ -70,7 +70,7 @@ namespace MauiApp2.Pages
             _event = evt;
             _currentSuggestions = new List<PlaceSuggestion>();
 
-            // Az esemény meglévõ adataival töltjük fel az ûrlapot
+            
             EventName = evt.EventName;
             Location = evt.Location;
             StartDate = evt.StartDate;
@@ -85,7 +85,7 @@ namespace MauiApp2.Pages
 
             SaveCommand = new Command(async () => await SaveEvent());
 
-            // Zenei mûfaj láthatóságának beállítása
+           
             IsMusicGenreVisible = Category == "Koncert";
 
             BindingContext = this;
@@ -221,7 +221,7 @@ namespace MauiApp2.Pages
         private void OnCategoryPickerSelectedIndexChanged(object sender, EventArgs e)
         {
             var selectedCategory = CategoryPicker.SelectedItem?.ToString();
-            Category = selectedCategory; // Frissítjük a Category tulajdonságot
+            Category = selectedCategory; 
             IsMusicGenreVisible = selectedCategory == "Koncert";
         }
 
@@ -229,7 +229,7 @@ namespace MauiApp2.Pages
         {
             try
             {
-                // Ellenõrizzük, hogy minden kötelezõ mezõ ki van-e töltve
+                
                 if (string.IsNullOrWhiteSpace(EventName) ||
                     string.IsNullOrWhiteSpace(Location) ||
                     string.IsNullOrWhiteSpace(AgeRestriction) ||
@@ -245,7 +245,7 @@ namespace MauiApp2.Pages
                     return;
                 }
 
-                // Létrehozunk egy EventInsert objektumot az Event adataiból
+                
                 var eventInsert = new EventInsert
                 {
                     Id = _event.Id,
@@ -265,10 +265,10 @@ namespace MauiApp2.Pages
                     MusicGenre = Category == "Koncert" ? MusicGenre : null
                 };
 
-                // Naplózzuk az eventInsert objektumot hibakeresés céljából
+                
                 Console.WriteLine($"Frissítendõ esemény: Id={eventInsert.Id}, EventName={eventInsert.EventName}, Category={eventInsert.Category}, UserId={eventInsert.UserId}");
 
-                // Frissítjük a Supabase táblában az EventInsert osztály használatával
+                
                 var response = await _supabaseClient
                     .From<EventInsert>()
                     .Where(e => e.Id == eventInsert.Id)
@@ -285,13 +285,13 @@ namespace MauiApp2.Pages
                     .Set(e => e.Longitude, eventInsert.Longitude)
                     .Update();
 
-                // Ellenõrizzük, hogy a frissítés sikeres volt-e
+                
                 if (response.Models == null || !response.Models.Any())
                 {
                     throw new Exception("A frissítés nem sikerült, a Supabase nem adott vissza frissített rekordot.");
                 }
 
-                // Frissítjük az Event objektumot is, hogy az UI-ban is frissüljenek az adatok
+                
                 _event.EventName = eventInsert.EventName;
                 _event.Location = eventInsert.Location;
                 _event.StartDate = eventInsert.StartDate;
@@ -304,12 +304,12 @@ namespace MauiApp2.Pages
                 _event.Latitude = eventInsert.Latitude;
                 _event.Longitude = eventInsert.Longitude;
 
-                // Értesítjük az eseményt a változásról, hogy a státusz frissüljön
+                
                 _event.OnPropertyChanged(nameof(_event.StatusText));
                 _event.OnPropertyChanged(nameof(_event.StatusColor));
 
                 await DisplayAlert("Siker", "Esemény sikeresen módosítva!", "OK");
-                await Navigation.PopAsync(); // Visszatérünk az elõzõ oldalra
+                await Navigation.PopAsync(); 
             }
             catch (Exception ex)
             {
@@ -318,7 +318,7 @@ namespace MauiApp2.Pages
             }
         }
 
-        // INotifyPropertyChanged implementáció
+       
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName)
         {

@@ -57,7 +57,7 @@ namespace MauiApp2.Pages
                     return;
                 }
 
-                // Az EventInsert osztályt használjuk a lekérdezéshez
+                
                 var response = await _supabaseClient
                     .From<EventInsert>()
                     .Filter("user_id", Constants.Operator.Equals, user.Id)
@@ -68,7 +68,7 @@ namespace MauiApp2.Pages
                 {
                     foreach (var evtInsert in response.Models)
                     {
-                        // Átalakítjuk EventInsert-bõl Event objektummá
+                        
                         var evt = new Event
                         {
                             Id = evtInsert.Id,
@@ -88,7 +88,7 @@ namespace MauiApp2.Pages
                             MusicGenre = evtInsert.MusicGenre
                         };
 
-                        // Lekérdezzük a készítõ nevét az SQL függvény segítségével
+                       
                         var creatorNameResponse = await _supabaseClient.Rpc("get_user_name", new { user_id = evt.UserId });
                         evt.CreatorName = creatorNameResponse?.Content ?? "Ismeretlen";
                         evt.ShowCreatorDetailsCommand = new Command(async () => await ShowCreatorDetails(evt.UserId, evt.CreatorName));
@@ -113,13 +113,13 @@ namespace MauiApp2.Pages
                 var evt = UserEvents.FirstOrDefault(e => e.Id == eventId);
                 if (evt == null) return;
 
-                // Naplózzuk az eseményt, amelyet szerkeszteni próbálunk
+                
                 Console.WriteLine($"Szerkesztés kezdése: Id={evt.Id}, EventName={evt.EventName}");
 
-                // Navigálunk az EditEventPage-re
+               
                 await Navigation.PushAsync(new EditEventPage(_supabaseClient, new PlaceService(), evt));
 
-                // A visszatérés után frissítjük a listát, hogy a státusz is frissüljön
+                
                 await LoadUserEvents();
             }
             catch (Exception ex)
@@ -135,17 +135,17 @@ namespace MauiApp2.Pages
                 var confirm = await DisplayAlert("Megerõsítés", "Biztosan törölni szeretnéd ezt az eseményt?", "Igen", "Nem");
                 if (!confirm) return;
 
-                // Naplózzuk a törlési mûveletet
+              
                 Console.WriteLine($"Törlés kezdése: Id={eventId}");
 
-                // Törlés a Supabase-ben az EventInsert osztály használatával
+                
                 await _supabaseClient
                     .From<EventInsert>()
                     .Filter("id", Constants.Operator.Equals, eventId)
                     .Delete();
 
                 await DisplayAlert("Siker", "Esemény sikeresen törölve!", "OK");
-                await LoadUserEvents(); // Frissítjük a listát
+                await LoadUserEvents(); 
             }
             catch (Exception ex)
             {
@@ -158,7 +158,7 @@ namespace MauiApp2.Pages
         {
             try
             {
-                // Lekérdezzük, hány eseményt készített a felhasználó
+                
                 var createdEventsResponse = await _supabaseClient
                     .From<EventInsert>()
                     .Where(e => e.UserId == creatorId)
@@ -166,7 +166,7 @@ namespace MauiApp2.Pages
 
                 int createdEventsCount = createdEventsResponse.Models?.Count ?? 0;
 
-                // Lekérdezzük a készítõ eseményeinek értékeléseit
+                
                 double averageRating = 0;
                 if (createdEventsCount > 0)
                 {
@@ -182,7 +182,7 @@ namespace MauiApp2.Pages
                     }
                 }
 
-                // Megjelenítjük az adatokat egy felugró ablakban
+                
                 string message = $"{creatorName} adatai:\n" +
                                 $"Készített események száma: {createdEventsCount}\n" +
                                 $"Átlagos értékelés: {(averageRating > 0 ? averageRating.ToString("F1") : "Nincs értékelés")}";

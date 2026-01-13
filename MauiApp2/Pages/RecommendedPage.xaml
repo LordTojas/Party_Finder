@@ -15,7 +15,7 @@
     <ScrollView>
         <VerticalStackLayout Padding="25" Spacing="25">
 
-            <!-- Fejléc -->
+           
             <Label Text="🤝 Ajánlott események neked"
                    FontSize="26"
                    FontAttributes="Bold"
@@ -23,7 +23,7 @@
                    HorizontalOptions="Center"
                    Margin="0,10,0,5" />
 
-            <!-- Ajánlás gomb -->
+            
             <Button Text="✨ Új ajánlás kérése"
                     FontSize="18"
                     FontAttributes="Bold"
@@ -35,7 +35,7 @@
                     HorizontalOptions="Center"
                     Clicked="OnRecommendClicked" />
 
-            <!-- Ajánlott események listája -->
+           
             <CollectionView x:Name="RecommendedEventsCollectionView"
                             ItemsSource="{Binding RecommendedEvents}"
                             IsVisible="{Binding HasRecommendedEvents}"
@@ -52,7 +52,7 @@
 
                             <VerticalStackLayout Spacing="8">
 
-                                <!-- Státusz jelölő -->
+                                
                                 <Frame CornerRadius="8"
                                        Padding="6,3"
                                        WidthRequest="100"
@@ -65,14 +65,14 @@
                                            HorizontalTextAlignment="Center"/>
                                 </Frame>
 
-                                <!-- Esemény neve -->
+                                
                                 <Label Text="{Binding EventName}"
                                        FontSize="20"
                                        FontAttributes="Bold"
                                        TextColor="White"
                                        LineBreakMode="WordWrap"/>
 
-                                <!-- Helyszín -->
+                               
                                 <HorizontalStackLayout Spacing="6">
                                     <Label Text="📍" FontSize="14" TextColor="#9B59B6"/>
                                     <Label Text="{Binding Location}"
@@ -80,7 +80,7 @@
                                            TextColor="#CCCCCC"/>
                                 </HorizontalStackLayout>
 
-                                <!-- Kezdés -->
+                                
                                 <HorizontalStackLayout Spacing="6">
                                     <Label Text="🕒" FontSize="14" TextColor="#9B59B6"/>
                                     <Label Text="{Binding StartDate, StringFormat='Kezdés: {0:yyyy.MM.dd}'}"
@@ -91,7 +91,7 @@
                                            TextColor="#BBBBBB"/>
                                 </HorizontalStackLayout>
 
-                                <!-- Vége -->
+                                
                                 <HorizontalStackLayout Spacing="6">
                                     <Label Text="⏰" FontSize="14" TextColor="#9B59B6"/>
                                     <Label Text="{Binding EndDate, StringFormat='Vége: {0:yyyy.MM.dd}'}"
@@ -102,7 +102,7 @@
                                            TextColor="#BBBBBB"/>
                                 </HorizontalStackLayout>
 
-                                <!-- Kategória és korhatár -->
+                                
                                 <HorizontalStackLayout Spacing="8" Margin="0,5,0,0">
                                     <Label Text="📂" FontSize="14" TextColor="#9B59B6"/>
                                     <Label Text="{Binding Category}"
@@ -114,7 +114,7 @@
                                            TextColor="#CCCCCC"/>
                                 </HorizontalStackLayout>
 
-                                <!-- Gombok -->
+                                
                                 <HorizontalStackLayout Spacing="12" Margin="0,10,0,0" HorizontalOptions="Center">
                                     <Button Text="💜 Kedvelés"
                                             BackgroundColor="#9B59B6"
@@ -142,7 +142,7 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <!-- Üres ajánlások -->
+            
             <Label Text="Nincs ajánlott esemény 😔"
                    FontSize="16"
                    TextColor="#AAAAAA"

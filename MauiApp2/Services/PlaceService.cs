@@ -111,7 +111,7 @@ namespace MauiApp2.Services
                 if (status == "OK")
                 {
                     var results = root.GetProperty("results");
-                    if (results.EnumerateArray().MoveNext()) // Ellenőrizzük, hogy van-e legalább egy eredmény
+                    if (results.EnumerateArray().MoveNext()) 
                     {
                         var firstResult = results.EnumerateArray().First();
                         var address = firstResult.GetProperty("formatted_address").GetString();

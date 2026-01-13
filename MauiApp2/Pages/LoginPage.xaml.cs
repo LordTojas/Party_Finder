@@ -16,7 +16,7 @@ namespace MauiApp2.Pages
             _supabaseClient = supabaseClient;
         }
 
-        // Klasszikus felhasználónév/jelszó login
+        
         private async void OnLoginClicked(object sender, EventArgs e)
         {
             ErrorLabel.IsVisible = false;
@@ -65,7 +65,7 @@ namespace MauiApp2.Pages
             }
         }
 
-        // Google login WebAuthenticator-rel
+        
         private async void OnGoogleLoginClicked(object sender, EventArgs e)
         {
             ErrorLabel.IsVisible = false;
@@ -75,33 +75,40 @@ namespace MauiApp2.Pages
             {
                 var provider = "google";
 
-                // Supabase Google hitelesítési URL
-                var authUrl = new Uri($"https://lbsqjhnljmlzjdnumjax.supabase.co/auth/v1/authorize?provider={provider}");
+               
+                var authUrl = new Uri(
+                    $"https://lbsqjhnljmlzjdnumjax.supabase.co/auth/v1/authorize" +
+                    $"?provider={provider}" +
+                    $"&redirect_to=myapp://callback" +
+                    $"&scope=openid%20email%20profile" +
+                    $"&response_type=token"
+                );
+
                 var callbackUrl = new Uri("myapp://callback");
 
+                
                 var result = await WebAuthenticator.AuthenticateAsync(authUrl, callbackUrl);
 
-                var accessToken = result?.Properties.ContainsKey("access_token") == true
-                    ? result.Properties["access_token"]
-                    : null;
+                
+                var accessToken =
+                    result?.Properties.TryGetValue("access_token", out var at) == true ? at : null;
 
-                var refreshToken = result?.Properties.ContainsKey("refresh_token") == true
-                    ? result.Properties["refresh_token"]
-                    : null;
+                var refreshToken =
+                    result?.Properties.TryGetValue("refresh_token", out var rt) == true ? rt : null;
 
-                if (!string.IsNullOrEmpty(accessToken))
+                if (accessToken != null)
                 {
-                    // Bejelentkezés a Supabase-hez az access token alapján
+                    
                     var session = await _supabaseClient.Auth.SetSession(accessToken, refreshToken);
 
-                    if (session != null && session.User != null)
+                    if (session?.User != null)
                     {
                         await DisplayAlert("Siker", "Sikeres Google bejelentkezés!", "OK");
                         await Shell.Current.GoToAsync("HomePage");
                     }
                     else
                     {
-                        ShowError("Hiba a Google hitelesítés során. Ellenõrizd a Supabase konfigurációt.");
+                        ShowError("Hiba: a Supabase session nem jött létre.");
                     }
                 }
                 else
@@ -114,6 +121,7 @@ namespace MauiApp2.Pages
                 ShowError($"Hiba a Google bejelentkezés során: {ex.Message}");
             }
         }
+
 
         private void ShowError(string message)
         {

@@ -8,7 +8,7 @@
     <ScrollView>
         <VerticalStackLayout Padding="25" Spacing="25">
 
-            <!-- Fejléc -->
+           
             <Label Text="🎟️ Saját eseményeim"
                    FontSize="26"
                    FontAttributes="Bold"
@@ -16,7 +16,7 @@
                    HorizontalOptions="Center"
                    Margin="0,10,0,5" />
 
-            <!-- Ha vannak események -->
+            
             <CollectionView x:Name="EventsCollectionView"
                             ItemsSource="{Binding UserEvents}"
                             IsVisible="{Binding HasEvents}"
@@ -33,7 +33,7 @@
 
                             <VerticalStackLayout Spacing="8">
 
-                                <!-- Státusz badge -->
+                                
                                 <Frame CornerRadius="8"
                                        Padding="6,3"
                                        WidthRequest="100"
@@ -46,14 +46,14 @@
                                            HorizontalTextAlignment="Center"/>
                                 </Frame>
 
-                                <!-- Esemény neve -->
+                               
                                 <Label Text="{Binding EventName}"
                                        FontSize="20"
                                        FontAttributes="Bold"
                                        TextColor="White"
                                        LineBreakMode="WordWrap"/>
 
-                                <!-- Helyszín -->
+                               
                                 <HorizontalStackLayout Spacing="6">
                                     <Label Text="📍" FontSize="14" TextColor="#9B59B6"/>
                                     <Label Text="{Binding Location}"
@@ -61,7 +61,7 @@
                                            TextColor="#CCCCCC"/>
                                 </HorizontalStackLayout>
 
-                                <!-- Időpont -->
+                               
                                 <HorizontalStackLayout Spacing="6">
                                     <Label Text="🕒" FontSize="14" TextColor="#9B59B6"/>
                                     <Label Text="{Binding StartDate, StringFormat='Kezdés: {0:yyyy.MM.dd HH:mm}'}"
@@ -76,7 +76,7 @@
                                            TextColor="#BBBBBB"/>
                                 </HorizontalStackLayout>
 
-                                <!-- Kategória és korhatár -->
+                               
                                 <HorizontalStackLayout Spacing="8" Margin="0,5,0,0">
                                     <Label Text="📂" FontSize="14" TextColor="#9B59B6"/>
                                     <Label Text="{Binding Category}"
@@ -88,7 +88,7 @@
                                            TextColor="#CCCCCC"/>
                                 </HorizontalStackLayout>
 
-                                <!-- Készítő -->
+                               
                                 <HorizontalStackLayout Spacing="5">
                                     <Label Text="👤 Készítette:"
                                            FontSize="13"
@@ -102,7 +102,7 @@
                                     </Label>
                                 </HorizontalStackLayout>
 
-                                <!-- Gombok -->
+                                
                                 <HorizontalStackLayout Spacing="12" Margin="0,10,0,0">
                                     <Button Text="✏️ Módosítás"
                                             BackgroundColor="#9B59B6"
@@ -129,7 +129,7 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <!-- Ha nincs esemény -->
+            
             <Label Text="Nincsenek saját eseményeid 😔"
                    FontSize="16"
                    TextColor="#AAAAAA"

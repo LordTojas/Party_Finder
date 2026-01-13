@@ -5,12 +5,12 @@
              NavigationPage.HasNavigationBar="False">
 
     <AbsoluteLayout>
-        <!-- Az oldal tartalma, amit az öröklő oldalak adnak meg -->
+       
         <ContentView x:Name="PageContent"
                      AbsoluteLayout.LayoutBounds="0, 0, 1, 1"
                      AbsoluteLayout.LayoutFlags="All"/>
 
-        <!-- Vissza gomb a bal felső sarokban -->
+        
         <Button x:Name="BackButton"
                 Text="⬅"
                 FontSize="16"

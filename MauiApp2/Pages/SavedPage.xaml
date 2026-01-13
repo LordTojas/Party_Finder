@@ -15,7 +15,7 @@
     <ScrollView>
         <VerticalStackLayout Padding="25" Spacing="25">
 
-            <!-- Felhasználói statisztikák -->
+            
             <Frame BackgroundColor="#2B2B3F"
                    CornerRadius="15"
                    Padding="20"
@@ -46,7 +46,7 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Mentett események -->
+           
             <CollectionView x:Name="SavedEventsCollectionView"
                             ItemsSource="{Binding SavedEvents}"
                             IsVisible="{Binding HasSavedEvents}"
@@ -63,7 +63,7 @@
 
                             <VerticalStackLayout Spacing="8">
 
-                                <!-- Státusz -->
+                                
                                 <Frame CornerRadius="8"
                                        Padding="6,3"
                                        WidthRequest="100"
@@ -76,14 +76,14 @@
                                            HorizontalTextAlignment="Center"/>
                                 </Frame>
 
-                                <!-- Esemény neve -->
+                                
                                 <Label Text="{Binding EventName}"
                                        FontSize="20"
                                        FontAttributes="Bold"
                                        TextColor="White"
                                        LineBreakMode="WordWrap"/>
 
-                                <!-- Helyszín -->
+                                
                                 <HorizontalStackLayout Spacing="6">
                                     <Label Text="📍" FontSize="14" TextColor="#9B59B6"/>
                                     <Label Text="{Binding Location}"
@@ -91,7 +91,7 @@
                                            TextColor="#CCCCCC"/>
                                 </HorizontalStackLayout>
 
-                                <!-- Kezdés -->
+                                
                                 <HorizontalStackLayout Spacing="6">
                                     <Label Text="🕒" FontSize="14" TextColor="#9B59B6"/>
                                     <Label Text="{Binding StartDate, StringFormat='Kezdés: {0:yyyy.MM.dd}'}"
@@ -102,7 +102,7 @@
                                            TextColor="#BBBBBB"/>
                                 </HorizontalStackLayout>
 
-                                <!-- Vége -->
+                                
                                 <HorizontalStackLayout Spacing="6">
                                     <Label Text="⏰" FontSize="14" TextColor="#9B59B6"/>
                                     <Label Text="{Binding EndDate, StringFormat='Vége: {0:yyyy.MM.dd}'}"
@@ -113,7 +113,7 @@
                                            TextColor="#BBBBBB"/>
                                 </HorizontalStackLayout>
 
-                                <!-- Kategória és korhatár -->
+                               
                                 <HorizontalStackLayout Spacing="8" Margin="0,5,0,0">
                                     <Label Text="📂" FontSize="14" TextColor="#9B59B6"/>
                                     <Label Text="{Binding Category}"
@@ -125,7 +125,7 @@
                                            TextColor="#CCCCCC"/>
                                 </HorizontalStackLayout>
 
-                                <!-- Értékelés (lejárt eseményeknél) -->
+                                
                                 <HorizontalStackLayout Spacing="10"
                                                        Margin="0,10,0,0"
                                                        IsVisible="{Binding IsExpired}">
@@ -171,7 +171,7 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <!-- Üres események -->
+            
             <Label Text="📭 Még nem mentettél eseményeket"
                    FontSize="16"
                    TextColor="#AAAAAA"

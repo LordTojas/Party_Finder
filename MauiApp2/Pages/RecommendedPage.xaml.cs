@@ -1,5 +1,5 @@
 using Supabase;
-using Supabase.Postgrest; // Hozzáadjuk a Postgrest névteret az Operator enum miatt
+using Supabase.Postgrest; 
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -51,7 +51,7 @@ namespace MauiApp2.Pages
                     return;
                 }
 
-                // Betöltjük a felhasználó kedvelt eseményeinek kategóriáit
+              
                 var likedResponse = await _supabaseClient
                     .From<Liked>()
                     .Where(l => l.UserId == user.Id)
@@ -87,7 +87,7 @@ namespace MauiApp2.Pages
                     return;
                 }
 
-                // Betöltjük az összes eseményt, és szûrjük a kategóriák alapján
+                
                 var allEventsResponse = await _supabaseClient
                     .From<Event>()
                     .Filter("category", Constants.Operator.In, likedCategories)
@@ -96,7 +96,7 @@ namespace MauiApp2.Pages
                 if (allEventsResponse.Models != null)
                 {
                     var recommendedEvents = allEventsResponse.Models
-                        .Where(e => !likedEventIds.Contains(e.Id)) // Kizárjuk a már kedvelt eseményeket
+                        .Where(e => !likedEventIds.Contains(e.Id)) 
                         .ToList();
 
                     foreach (var evt in recommendedEvents)
@@ -130,7 +130,7 @@ namespace MauiApp2.Pages
                     return;
                 }
 
-                // Ellenõrizzük, hogy a felhasználó már kedvelte-e az eseményt
+                
                 var existingLike = await _supabaseClient
                     .From<Liked>()
                     .Where(l => l.UserId == user.Id && l.EventId == eventId)
@@ -138,14 +138,14 @@ namespace MauiApp2.Pages
 
                 if (existingLike.Models.Any())
                 {
-                    // Ha már kedvelte, töröljük a kedvelést
+                    
                     await _supabaseClient
                         .From<Liked>()
                         .Where(l => l.UserId == user.Id && l.EventId == eventId)
                         .Delete();
                     await DisplayAlert("Siker", "Kedvelés törölve!", "OK");
 
-                    // Frissítjük az ajánlott események listáját
+                    
                     var eventToRemove = RecommendedEvents.FirstOrDefault(e => e.Id == eventId);
                     if (eventToRemove != null)
                     {
@@ -154,7 +154,7 @@ namespace MauiApp2.Pages
                 }
                 else
                 {
-                    // Ha még nem kedvelte, hozzáadjuk a kedvelést
+                    
                     var like = new Liked
                     {
                         UserId = user.Id,
@@ -164,7 +164,7 @@ namespace MauiApp2.Pages
                     await _supabaseClient.From<Liked>().Insert(like);
                     await DisplayAlert("Siker", "Esemény kedvelve!", "OK");
 
-                    // Frissítjük az ajánlott események listáját
+                    
                     var eventToMove = RecommendedEvents.FirstOrDefault(e => e.Id == eventId);
                     if (eventToMove != null)
                     {
@@ -190,7 +190,7 @@ namespace MauiApp2.Pages
                     return;
                 }
 
-                // Ellenõrizzük, hogy a felhasználó már jelezte-e, hogy ott lesz
+                
                 var existingBeThere = await _supabaseClient
                     .From<BeThere>()
                     .Where(b => b.UserId == user.Id && b.EventId == eventId)
@@ -198,7 +198,7 @@ namespace MauiApp2.Pages
 
                 if (existingBeThere.Models.Any())
                 {
-                    // Ha már jelezte, töröljük a jelzést
+                    
                     await _supabaseClient
                         .From<BeThere>()
                         .Where(b => b.UserId == user.Id && b.EventId == eventId)
@@ -207,7 +207,7 @@ namespace MauiApp2.Pages
                 }
                 else
                 {
-                    // Ha még nem jelezte, hozzáadjuk a jelzést
+                   
                     var beThere = new BeThere
                     {
                         UserId = user.Id,

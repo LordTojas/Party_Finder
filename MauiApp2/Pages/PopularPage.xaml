@@ -15,7 +15,6 @@
     <ScrollView>
         <VerticalStackLayout Padding="25" Spacing="25">
 
-            <!-- Fejléc -->
             <Label Text="💜 Kedvelt eseményeid"
                    FontSize="26"
                    FontAttributes="Bold"
@@ -23,7 +22,6 @@
                    HorizontalOptions="Center"
                    Margin="0,10,0,5" />
 
-            <!-- Kedvelt események lista -->
             <CollectionView x:Name="LikedEventsCollectionView"
                             ItemsSource="{Binding LikedEvents}"
                             IsVisible="{Binding HasLikedEvents}"
@@ -40,7 +38,6 @@
 
                             <VerticalStackLayout Spacing="8">
 
-                                <!-- Státusz jelölő -->
                                 <Frame CornerRadius="8"
                                        Padding="6,3"
                                        WidthRequest="100"
@@ -53,14 +50,12 @@
                                            HorizontalTextAlignment="Center"/>
                                 </Frame>
 
-                                <!-- Esemény neve -->
                                 <Label Text="{Binding EventName}"
                                        FontSize="20"
                                        FontAttributes="Bold"
                                        TextColor="White"
                                        LineBreakMode="WordWrap"/>
 
-                                <!-- Helyszín -->
                                 <HorizontalStackLayout Spacing="6">
                                     <Label Text="📍" FontSize="14" TextColor="#9B59B6"/>
                                     <Label Text="{Binding Location}"
@@ -68,7 +63,6 @@
                                            TextColor="#CCCCCC"/>
                                 </HorizontalStackLayout>
 
-                                <!-- Kezdés -->
                                 <HorizontalStackLayout Spacing="6">
                                     <Label Text="🕒" FontSize="14" TextColor="#9B59B6"/>
                                     <Label Text="{Binding StartDate, StringFormat='Kezdés: {0:yyyy.MM.dd}'}"
@@ -79,7 +73,6 @@
                                            TextColor="#BBBBBB"/>
                                 </HorizontalStackLayout>
 
-                                <!-- Vége -->
                                 <HorizontalStackLayout Spacing="6">
                                     <Label Text="⏰" FontSize="14" TextColor="#9B59B6"/>
                                     <Label Text="{Binding EndDate, StringFormat='Vége: {0:yyyy.MM.dd}'}"
@@ -90,7 +83,6 @@
                                            TextColor="#BBBBBB"/>
                                 </HorizontalStackLayout>
 
-                                <!-- Kategória és korhatár -->
                                 <HorizontalStackLayout Spacing="8" Margin="0,5,0,0">
                                     <Label Text="📂" FontSize="14" TextColor="#9B59B6"/>
                                     <Label Text="{Binding Category}"
@@ -102,7 +94,6 @@
                                            TextColor="#CCCCCC"/>
                                 </HorizontalStackLayout>
 
-                                <!-- Kedvenc ikon -->
                                 <HorizontalStackLayout HorizontalOptions="End"
                                                        Margin="0,10,0,0">
                                     <Button Text="💔 Eltávolítás"
@@ -112,7 +103,7 @@
                                             FontAttributes="Bold"
                                             HeightRequest="40"
                                             WidthRequest="150"
-                                            Command="{Binding UnlikeCommand}"
+                                            Clicked="OnRemoveClicked"
                                             CommandParameter="{Binding Id}" />
                                 </HorizontalStackLayout>
 
@@ -122,7 +113,6 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <!-- Üres lista -->
             <Label Text="Még nem kedveltél eseményeket 😔"
                    FontSize="16"
                    TextColor="#AAAAAA"

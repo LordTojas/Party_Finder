@@ -81,15 +81,15 @@ namespace MauiApp2.Models
                 var endDateTime = EndDate.Add(EndTime);
 
                 if (currentDateTime < startDateTime)
-                    return Color.FromArgb("#FF5733"); // Narancssárga (KÖVETKEZŐ)
+                    return Color.FromArgb("#FF5733"); 
                 else if (currentDateTime >= startDateTime && currentDateTime <= endDateTime)
-                    return Color.FromArgb("#33FF57"); // Zöld (MOST)
+                    return Color.FromArgb("#33FF57"); 
                 else
-                    return Color.FromArgb("#FF3333"); // Piros (LEJÁRT)
+                    return Color.FromArgb("#FF3333"); 
             }
         }
 
-        // Parancsok a gombokhoz
+        
         public Command<long> LikeCommand { get; set; }
         public Command<long> BeThereCommand { get; set; }
         public Command<long> SaveRatingCommand { get; set; }
@@ -131,10 +131,10 @@ namespace MauiApp2.Models
             }
         }
 
-        // INotifyPropertyChanged implementáció
+        
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public void OnPropertyChanged(string propertyName) // Public-ra változtatva
+        public void OnPropertyChanged(string propertyName) 
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

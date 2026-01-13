@@ -9,7 +9,6 @@
         <ResourceDictionary>
             <converters:BoolConverter x:Key="BoolConverter" />
 
-            <!-- Alap stílusok -->
             <Style TargetType="Label">
                 <Setter Property="TextColor" Value="White"/>
             </Style>
@@ -33,10 +32,10 @@
     </ContentPage.Resources>
 
     <Grid BackgroundColor="#1E1E2F">
+
         <ScrollView>
             <VerticalStackLayout Padding="20" Spacing="25">
 
-                <!-- TAB VÁLTÓ -->
                 <Frame BackgroundColor="#29293D" CornerRadius="10" Padding="5" HasShadow="False">
                     <Grid ColumnDefinitions="*,*">
                         <Button x:Name="CommunityTabButton"
@@ -51,10 +50,8 @@
                     </Grid>
                 </Frame>
 
-                <!-- ============= KÖZÖSSÉG VIEW ============= -->
                 <VerticalStackLayout x:Name="CommunityView" IsVisible="True" Spacing="20">
 
-                    <!-- Új topic -->
                     <Frame BackgroundColor="#2B2B3F" CornerRadius="12" Padding="15" HasShadow="False">
                         <VerticalStackLayout Spacing="12">
                             <Label Text="🗨️ Új Topic létrehozása"
@@ -73,7 +70,6 @@
                                         HeightRequest="120"/>
                             </Frame>
 
-                            <!-- Esemény keresés -->
                             <Frame BackgroundColor="#2B2B2B" CornerRadius="8" Padding="10" HasShadow="False">
                                 <Entry x:Name="EventSearchEntry"
                                        Placeholder="Esemény keresése és linkelése..."
@@ -82,8 +78,6 @@
 
                             <CollectionView x:Name="EventSuggestionsCollectionView"
                                             ItemsSource="{Binding FilteredEvents}"
-                                            SelectionMode="Single"
-                                            SelectionChanged="OnEventSuggestionSelected"
                                             IsVisible="{Binding FilteredEvents, Converter={StaticResource BoolConverter}}"
                                             HeightRequest="150">
                                 <CollectionView.ItemTemplate>
@@ -93,6 +87,11 @@
                                                Padding="10"
                                                Margin="0,5"
                                                HasShadow="False">
+
+                                            <Frame.GestureRecognizers>
+                                                <TapGestureRecognizer Tapped="OnEventSuggestionTapped"/>
+                                            </Frame.GestureRecognizers>
+
                                             <Label Text="{Binding EventName}" />
                                         </Frame>
                                     </DataTemplate>
@@ -116,7 +115,6 @@
                            FontAttributes="Bold"
                            HorizontalOptions="Center"/>
 
-                    <!-- Topic lista -->
                     <CollectionView x:Name="TopicsCollectionView"
                                     ItemsSource="{Binding Topics}"
                                     SelectionMode="Single"
@@ -145,7 +143,6 @@
                     </CollectionView>
                 </VerticalStackLayout>
 
-                <!-- ============= BARÁTOK VIEW ============= -->
                 <VerticalStackLayout x:Name="FriendsView" IsVisible="False" Spacing="20">
                     <Label Text="👥 Barátaim"
                            FontSize="22"
@@ -171,7 +168,8 @@
                            FontSize="18"/>
 
                     <CollectionView x:Name="FriendRequestsCollectionView"
-                                    ItemsSource="{Binding IncomingRequests}">
+                                    ItemsSource="{Binding IncomingRequests}"
+                                    EmptyView="Nincs függőben lévő kérelem.">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <Frame CornerRadius="10"
@@ -179,17 +177,20 @@
                                        Padding="10"
                                        Margin="0,5"
                                        HasShadow="False">
-                                    <HorizontalStackLayout Spacing="10">
-                                        <Label Text="{Binding SenderName}" VerticalOptions="Center"/>
-                                        <Button Text="✅" WidthRequest="40"
+                                    <Grid ColumnDefinitions="*, Auto, Auto">
+                                        <Label Grid.Column="0" Text="{Binding SenderName}" VerticalOptions="Center" FontAttributes="Bold"/>
+
+                                        <Button Grid.Column="1" Text="✓" WidthRequest="50" HeightRequest="40"
                                                 BackgroundColor="#4CAF50"
+                                                Margin="5,0"
                                                 CommandParameter="{Binding Id}"
                                                 Clicked="OnAcceptFriendClicked"/>
-                                        <Button Text="❌" WidthRequest="40"
+
+                                        <Button Grid.Column="2" Text="X" WidthRequest="50" HeightRequest="40"
                                                 BackgroundColor="#E74C3C"
                                                 CommandParameter="{Binding Id}"
                                                 Clicked="OnDeclineFriendClicked"/>
-                                    </HorizontalStackLayout>
+                                    </Grid>
                                 </Frame>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
@@ -200,7 +201,8 @@
                            FontSize="18"/>
 
                     <CollectionView x:Name="FriendsCollectionView"
-                                    ItemsSource="{Binding Friends}">
+                                    ItemsSource="{Binding Friends}"
+                                    EmptyView="Még nincsenek barátaid.">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <Frame CornerRadius="10"
@@ -208,21 +210,29 @@
                                        Padding="10"
                                        Margin="0,5"
                                        HasShadow="False">
-                                    <HorizontalStackLayout Spacing="10">
-                                        <Label Text="{Binding FriendName}" VerticalOptions="Center"/>
-                                        <Button Text="💬" WidthRequest="40" BackgroundColor="#2196F3"/>
-                                        <Button Text="🗑️" WidthRequest="40"
+                                    <Grid ColumnDefinitions="*, Auto, Auto">
+                                        <Label Grid.Column="0" Text="{Binding FriendName}" VerticalOptions="Center" FontAttributes="Bold"/>
+
+                                        <Button Grid.Column="1" 
+                                                Text="💬" 
+                                                WidthRequest="50" 
+                                                HeightRequest="40" 
+                                                BackgroundColor="#2196F3" 
+                                                Margin="5,0"
+                                                CommandParameter="{Binding Id}"
+                                                Clicked="OnOpenChatClicked"/>
+
+                                        <Button Grid.Column="2" Text="🗑️" WidthRequest="50" HeightRequest="40"
                                                 BackgroundColor="#E74C3C"
                                                 CommandParameter="{Binding Id}"
                                                 Clicked="OnDeleteFriendClicked"/>
-                                    </HorizontalStackLayout>
+                                    </Grid>
                                 </Frame>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </VerticalStackLayout>
 
-                <!-- ============= TOPIC RÉSZLETES NÉZET ============= -->
                 <Frame x:Name="DetailFrame"
                        IsVisible="False"
                        BackgroundColor="#2B2B3F"
@@ -242,7 +252,6 @@
                             <Label Text="{Binding SelectedTopic.Description}"
                                    FontSize="Medium"/>
 
-                            <!-- Csatolt esemény -->
                             <Frame IsVisible="{Binding SelectedTopic.HasEvent}"
                                    BackgroundColor="#33334D"
                                    CornerRadius="10"
@@ -258,7 +267,6 @@
                                 </VerticalStackLayout>
                             </Frame>
 
-                            <!-- Kép -->
                             <Image Source="{Binding SelectedTopic.PhotoUrl}"
                                    IsVisible="{Binding SelectedTopic.HasPhoto}"
                                    Aspect="AspectFit"
@@ -288,7 +296,9 @@
                                                Margin="0,5"
                                                HasShadow="False">
                                             <VerticalStackLayout Spacing="5">
-                                                <Label Text="{Binding UserId}" FontSize="Small" FontAttributes="Bold"/>
+
+                                                <Label Text="{Binding UserName}" FontSize="Small" FontAttributes="Bold"/>
+
                                                 <Label Text="{Binding CommentText}" FontSize="Small"/>
                                                 <Label Text="{Binding CreatedAt, StringFormat='{0:yyyy-MM-dd HH:mm}'}"
                                                        FontSize="Small"
@@ -303,5 +313,42 @@
                 </Frame>
             </VerticalStackLayout>
         </ScrollView>
+
+        <ContentView x:Name="ChatOverlay" IsVisible="False" BackgroundColor="#AA000000" InputTransparent="False">
+            <Frame BackgroundColor="#1E1E2F"
+                   CornerRadius="15"
+                   Margin="20,40,20,20"
+                   Padding="0"
+                   HasShadow="True"
+                   VerticalOptions="Fill"
+                   HorizontalOptions="Fill">
+                <Grid RowDefinitions="Auto, *, Auto">
+
+                    <Grid Grid.Row="0" BackgroundColor="#29293D" Padding="15" ColumnDefinitions="*, Auto">
+                        <Label x:Name="ChatPartnerNameLabel" Text="Chat" FontSize="18" FontAttributes="Bold" VerticalOptions="Center"/>
+                        <Button Grid.Column="1" Text="❌" BackgroundColor="Transparent" TextColor="Red" Clicked="OnCloseChatClicked"/>
+                    </Grid>
+
+                    <CollectionView Grid.Row="1" x:Name="ChatMessagesCollectionView" ItemsSource="{Binding CurrentChatMessages}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <VerticalStackLayout Padding="10" HorizontalOptions="{Binding Alignment}">
+                                    <Frame BackgroundColor="{Binding BubbleColor}" CornerRadius="10" Padding="10" HasShadow="False">
+                                        <Label Text="{Binding MessageText}" TextColor="White"/>
+                                    </Frame>
+                                    <Label Text="{Binding CreatedAt, StringFormat='{0:HH:mm}'}" FontSize="10" TextColor="Gray" HorizontalOptions="{Binding Alignment}"/>
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <Grid Grid.Row="2" ColumnDefinitions="*, Auto" Padding="10" BackgroundColor="#29293D">
+                        <Entry x:Name="ChatMessageEntry" Placeholder="Írj üzenetet..." ReturnCommand="{Binding SendMessageCommand}" TextColor="White"/>
+                        <Button Grid.Column="1" Text="Küldés" BackgroundColor="#9B59B6" Clicked="OnSendMessageClicked"/>
+                    </Grid>
+                </Grid>
+            </Frame>
+        </ContentView>
+
     </Grid>
 </ContentPage>

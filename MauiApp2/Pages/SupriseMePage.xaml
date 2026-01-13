@@ -15,7 +15,7 @@
     <ScrollView>
         <VerticalStackLayout Padding="25" Spacing="25">
 
-            <!-- Fejléc -->
+           
             <Label Text="🎲 Meglepetés esemény kereső"
                    FontSize="26"
                    FontAttributes="Bold"
@@ -23,7 +23,7 @@
                    HorizontalOptions="Center"
                    Margin="0,10,0,10" />
 
-            <!-- Szűrők kártyában -->
+           
             <Frame BackgroundColor="#2B2B3F"
                    CornerRadius="15"
                    Padding="20"
@@ -32,7 +32,7 @@
 
                 <VerticalStackLayout Spacing="15">
 
-                    <!-- Távolság -->
+                  
                     <Label Text="📍 Hány km-es körzetben keresel?"
                            FontSize="18"
                            TextColor="White"
@@ -44,7 +44,7 @@
                            BackgroundColor="#3C3C4D"
                            WidthRequest="300" />
 
-                    <!-- Dátum -->
+                    
                     <Label Text="📅 Melyik napra keresel eseményt?"
                            FontSize="18"
                            TextColor="White"
@@ -57,7 +57,7 @@
                                 TextColor="White"
                                 BackgroundColor="#3C3C4D" />
 
-                    <!-- Korhatár -->
+                   
                     <Label Text="🔞 Korhatár szűrés"
                            FontSize="18"
                            TextColor="White"
@@ -72,7 +72,7 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Meglepetés gomb -->
+            
             <Button Text="✨ Meglepetés esemény keresése"
                     FontSize="18"
                     FontAttributes="Bold"
@@ -84,7 +84,7 @@
                     HorizontalOptions="Center"
                     Clicked="OnSurpriseButtonClicked" />
 
-            <!-- Talált esemény -->
+            
             <Frame x:Name="ResultFrame"
                    IsVisible="{Binding HasEvent}"
                    BackgroundColor="#2B2B3F"
@@ -95,7 +95,7 @@
 
                 <VerticalStackLayout Spacing="10">
 
-                    <!-- Státusz -->
+                    
                     <Frame CornerRadius="8"
                            Padding="6,3"
                            WidthRequest="100"
@@ -108,14 +108,14 @@
                                HorizontalTextAlignment="Center"/>
                     </Frame>
 
-                    <!-- Esemény neve -->
+                    
                     <Label x:Name="EventNameLabel"
                            Text="{Binding SelectedEvent.EventName}"
                            FontSize="20"
                            FontAttributes="Bold"
                            TextColor="White" />
 
-                    <!-- Helyszín -->
+                    
                     <HorizontalStackLayout Spacing="6">
                         <Label Text="📍" FontSize="14" TextColor="#9B59B6" />
                         <Label x:Name="LocationLabel"
@@ -124,7 +124,7 @@
                                TextColor="#CCCCCC" />
                     </HorizontalStackLayout>
 
-                    <!-- Kezdés -->
+                    
                     <HorizontalStackLayout Spacing="6">
                         <Label Text="🕒" FontSize="14" TextColor="#9B59B6" />
                         <Label Text="{Binding SelectedEvent.StartDate, StringFormat='Kezdés: {0:yyyy.MM.dd}'}"
@@ -135,7 +135,7 @@
                                TextColor="#BBBBBB" />
                     </HorizontalStackLayout>
 
-                    <!-- Vége -->
+                   
                     <HorizontalStackLayout Spacing="6">
                         <Label Text="⏰" FontSize="14" TextColor="#9B59B6" />
                         <Label Text="{Binding SelectedEvent.EndDate, StringFormat='Vége: {0:yyyy.MM.dd}'}"
@@ -146,7 +146,7 @@
                                TextColor="#BBBBBB" />
                     </HorizontalStackLayout>
 
-                    <!-- Kategória -->
+                   
                     <HorizontalStackLayout Spacing="6">
                         <Label Text="📂" FontSize="14" TextColor="#9B59B6" />
                         <Label Text="{Binding SelectedEvent.Category}"
@@ -154,7 +154,7 @@
                                TextColor="#CCCCCC" />
                     </HorizontalStackLayout>
 
-                    <!-- Korhatár -->
+                    
                     <HorizontalStackLayout Spacing="6">
                         <Label Text="🔞" FontSize="14" TextColor="#9B59B6" />
                         <Label x:Name="AgeLimitLabel"
@@ -163,7 +163,7 @@
                                TextColor="#CCCCCC" />
                     </HorizontalStackLayout>
 
-                    <!-- Készítő -->
+                    
                     <HorizontalStackLayout Spacing="6">
                         <Label Text="👤 Készítette:"
                                FontSize="13"
@@ -178,7 +178,7 @@
                         </Label>
                     </HorizontalStackLayout>
 
-                    <!-- Gombok -->
+                  
                     <HorizontalStackLayout Spacing="12" Margin="0,10,0,0" HorizontalOptions="Center">
                         <Button Text="💜 Kedvelés"
                                 BackgroundColor="#9B59B6"
@@ -203,7 +203,7 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Üres állapot -->
+           
             <Label Text="😔 Nincs elérhető esemény a megadott feltételekkel."
                    IsVisible="{Binding HasNoEvent}"
                    HorizontalOptions="Center"

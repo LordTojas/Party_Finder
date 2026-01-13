@@ -25,12 +25,12 @@ namespace MauiApp2.Pages
                     return;
                 }
 
-                // Jelszó módosítása a Supabase Auth-ban
+               
                 var userAttributes = new UserAttributes { Password = NewPasswordEntry.Text };
                 await _supabaseClient.Auth.Update(userAttributes);
 
                 await DisplayAlert("Siker", "Jelszó sikeresen módosítva!", "OK");
-                await Navigation.PopAsync(); // Visszatérés a SettingsPage-re
+                await Navigation.PopAsync(); 
             }
             catch (Exception ex)
             {

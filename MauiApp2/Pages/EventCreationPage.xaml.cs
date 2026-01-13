@@ -1,4 +1,4 @@
-using Microsoft.Maui.Devices.Sensors;
+ï»¿using Microsoft.Maui.Devices.Sensors;
 using Maui.GoogleMaps;
 using MauiApp2.Services;
 using Supabase;
@@ -35,7 +35,7 @@ namespace MauiApp2.Pages
             _placeService = placeService;
             _supabaseClient = supabaseClient;
             _currentSuggestions = new List<PlaceSuggestion>();
-            BindingContext = this; // A bindinghoz szükséges
+            BindingContext = this;
         }
 
         protected override async void OnAppearing()
@@ -57,12 +57,12 @@ namespace MauiApp2.Pages
 
                 if (status != PermissionStatus.Granted)
                 {
-                    await DisplayAlert("Hiba", "A helymeghatározási engedély szükséges a jelenlegi pozíció használatához!", "OK");
+                    await DisplayAlert("Hiba", "A helymeghatÃ¡rozÃ¡si engedÃ©ly szÃ¼ksÃ©ges a jelenlegi pozÃ­ciÃ³ hasznÃ¡latÃ¡hoz!", "OK");
                 }
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Hiba", $"Hiba az engedélykérés során: {ex.Message}", "OK");
+                await DisplayAlert("Hiba", $"Hiba az engedÃ©lykÃ©rÃ©s sorÃ¡n: {ex.Message}", "OK");
             }
         }
 
@@ -73,7 +73,7 @@ namespace MauiApp2.Pages
                 var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
                 if (status != PermissionStatus.Granted)
                 {
-                    await DisplayAlert("Hiba", "Kérjük, engedélyezze a helymeghatározást a Beállításokban!", "OK");
+                    await DisplayAlert("Hiba", "KÃ©rjÃ¼k, engedÃ©lyezze a helymeghatÃ¡rozÃ¡st a BeÃ¡llÃ­tÃ¡sokban!", "OK");
                     return;
                 }
 
@@ -89,28 +89,27 @@ namespace MauiApp2.Pages
                     EventMap.Pins.Add(new Pin
                     {
                         Position = position,
-                        Label = "Jelenlegi pozíció"
+                        Label = "Jelenlegi pozÃ­ciÃ³"
                     });
 
                     _selectedLatitude = location.Latitude;
                     _selectedLongitude = location.Longitude;
 
-                    // Lekérjük a pontos címet a koordináták alapján
                     var address = await _placeService.GetPlaceAddressAsync(location.Latitude, location.Longitude);
-                    LocationEntry.Text = address; // A pontos címet állítjuk be
+                    LocationEntry.Text = address;
                 }
                 else
                 {
-                    await DisplayAlert("Hiba", "Nem sikerült lekérni a jelenlegi pozíciót. Kérjük, ellenõrizze a helymeghatározási beállításokat!", "OK");
+                    await DisplayAlert("Hiba", "Nem sikerÃ¼lt lekÃ©rni a jelenlegi pozÃ­ciÃ³t!", "OK");
                 }
             }
             catch (FeatureNotEnabledException)
             {
-                await DisplayAlert("Hiba", "A helymeghatározás ki van kapcsolva. Kérjük, engedélyezze a Beállításokban!", "OK");
+                await DisplayAlert("Hiba", "A helymeghatÃ¡rozÃ¡s ki van kapcsolva!", "OK");
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Hiba", $"Nem sikerült lekérni a pozíciót: {ex.Message}", "OK");
+                await DisplayAlert("Hiba", $"Nem sikerÃ¼lt lekÃ©rni a pozÃ­ciÃ³t: {ex.Message}", "OK");
             }
         }
 
@@ -166,9 +165,10 @@ namespace MauiApp2.Pages
         {
             var selectedCategory = CategoryPicker.SelectedItem?.ToString();
             IsMusicGenreVisible = selectedCategory == "Koncert";
+
             if (!IsMusicGenreVisible)
             {
-                MusicGenrePicker.SelectedItem = null; // Töröljük a kiválasztást, ha nem Koncert
+                MusicGenrePicker.SelectedItem = null;
             }
         }
 
@@ -176,29 +176,28 @@ namespace MauiApp2.Pages
         {
             try
             {
-                // Ellenõrizzük, hogy minden kötelezõ mezõ ki van-e töltve
                 if (string.IsNullOrWhiteSpace(EventNameEntry.Text) ||
                     StartDatePicker.Date == null ||
                     EndDatePicker.Date == null ||
                     string.IsNullOrWhiteSpace(LocationEntry.Text))
                 {
-                    await DisplayAlert("Hiba", "Kérlek töltsd ki az összes kötelezõ mezõt!", "OK");
+                    await DisplayAlert("Hiba", "KÃ©rlek tÃ¶ltsd ki az Ã¶sszes mezÅ‘t!", "OK");
                     return;
                 }
 
                 if (CategoryPicker.SelectedItem == null)
                 {
-                    await DisplayAlert("Hiba", "Kérlek, válassz egy kategóriát!", "OK");
+                    await DisplayAlert("Hiba", "KÃ©rlek vÃ¡lassz kategÃ³riÃ¡t!", "OK");
                     return;
                 }
 
-                if (CategoryPicker.SelectedItem.ToString() == "Koncert" && MusicGenrePicker.SelectedItem == null)
+                if (CategoryPicker.SelectedItem.ToString() == "Koncert" &&
+                    MusicGenrePicker.SelectedItem == null)
                 {
-                    await DisplayAlert("Hiba", "Kérlek, válassz egy zenei mûfajt a koncerthez!", "OK");
+                    await DisplayAlert("Hiba", "Koncert esetÃ©n zenei mÅ±faj szÃ¼ksÃ©ges!", "OK");
                     return;
                 }
 
-                // Ellenõrizzük, hogy a felhasználó be van-e jelentkezve
                 if (_supabaseClient.Auth.CurrentSession == null)
                 {
                     await DisplayAlert("Hiba", "Nem vagy bejelentkezve!", "OK");
@@ -206,16 +205,26 @@ namespace MauiApp2.Pages
                     return;
                 }
 
-                // Bejelentkezett felhasználó lekérése
                 var user = await _supabaseClient.Auth.GetUser(_supabaseClient.Auth.CurrentSession.AccessToken);
-                if (user == null)
+
+                //  KOR LEKÃ‰RÃ‰SE
+                var profileResponse = await _supabaseClient
+                    .From<MauiApp2.Models.User>()
+                    .Where(x => x.Id == user.Id)
+                    .Single();
+
+                int userAge = profileResponse?.Age ?? 0;
+
+                
+                if (userAge < 18 && AgeRestrictionPicker.SelectedItem?.ToString() == "KorhatÃ¡ros (18+)")
                 {
-                    await DisplayAlert("Hiba", "Nem sikerült lekérni a felhasználói adatokat!", "OK");
-                    await Shell.Current.GoToAsync("MainPage");
+                    await DisplayAlert("Hiba",
+                        "18 Ã©v alatt nem hozhatsz lÃ©tre korhatÃ¡ros (18+) esemÃ©nyt!",
+                        "OK");
+
                     return;
                 }
 
-                // Esemény adatainak összegyûjtése az EventInsert osztállyal
                 var eventData = new EventInsert
                 {
                     UserId = user.Id,
@@ -231,36 +240,41 @@ namespace MauiApp2.Pages
                     Longitude = _selectedLongitude,
                     CreatedAt = DateTime.UtcNow,
                     Category = CategoryPicker.SelectedItem.ToString(),
-                    MusicGenre = CategoryPicker.SelectedItem.ToString() == "Koncert" ? MusicGenrePicker.SelectedItem?.ToString() : null
+                    MusicGenre = CategoryPicker.SelectedItem.ToString() == "Koncert"
+                        ? MusicGenrePicker.SelectedItem?.ToString()
+                        : null
                 };
 
-                // Naplózzuk az esemény adatait hibakeresés céljából
-                Console.WriteLine($"Esemény mentése: EventName={eventData.EventName}, Description={eventData.Description}, Location={eventData.Location}");
+                Console.WriteLine($"EsemÃ©ny mentÃ©se: {eventData.EventName}, Loc={eventData.Location}");
 
-                // Adatok mentése a Supabase adatbázisba egy egyelemû listában
-                var response = await _supabaseClient.From<EventInsert>().Insert(new List<EventInsert> { eventData });
+                var response = await _supabaseClient.From<EventInsert>()
+                    .Insert(new List<EventInsert> { eventData });
 
                 if (response.Models != null && response.Models.Count > 0)
                 {
-                    await DisplayAlert("Siker", "Esemény létrehozva!", "OK");
+                    await DisplayAlert("Siker", "EsemÃ©ny lÃ©trehozva!", "OK");
                     await Shell.Current.GoToAsync("HomePage");
                 }
                 else
                 {
-                    await DisplayAlert("Hiba", "Nem sikerült létrehozni az eseményt!", "OK");
+                    await DisplayAlert("Hiba", "Nem sikerÃ¼lt lÃ©trehozni az esemÃ©nyt!", "OK");
                 }
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Hiba", $"Hiba történt az esemény létrehozása közben: {ex.Message}", "OK");
+                await DisplayAlert("Hiba",
+                    $"Hiba tÃ¶rtÃ©nt: {ex.Message}",
+                    "OK");
             }
         }
 
-        // INotifyPropertyChanged implementáció a bindinghoz
         public new event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(this,
+                new PropertyChangedEventArgs(propertyName));
         }
     }
+
+    
 }

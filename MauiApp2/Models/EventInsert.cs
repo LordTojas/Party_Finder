@@ -46,10 +46,10 @@ namespace MauiApp2.Models
         public DateTime CreatedAt { get; set; }
 
         [Column("category")]
-        public string Category { get; set; } // Új mező: Kategória
+        public string Category { get; set; } 
 
         [Column("music_genre")]
-        public string MusicGenre { get; set; } // Új mező: Zenei műfaj (csak Koncert esetén)
+        public string MusicGenre { get; set; } 
 
        
     }

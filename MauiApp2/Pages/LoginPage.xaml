@@ -5,7 +5,7 @@
              Title="Bejelentkezés"
              BackgroundColor="Transparent">
 
-    <!-- Háttér: PartyFinder stílusú lila–pink átmenet -->
+    
     <ContentPage.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="#512BD4" Offset="0.0" />
@@ -19,7 +19,7 @@
                              VerticalOptions="Center"
                              HorizontalOptions="Center">
 
-            <!-- Felső cím -->
+            
             <Label Text="🔐 Jelentkezz be"
                    FontSize="28"
                    FontAttributes="Bold"
@@ -27,7 +27,7 @@
                    HorizontalOptions="Center"
                    Margin="0,30,0,10" />
 
-            <!-- Rövid leírás -->
+            
             <Label Text="Lépj be, és fedezd fel a legjobb bulikat a közeledben!"
                    FontSize="15"
                    TextColor="WhiteSmoke"
@@ -36,13 +36,13 @@
                    Margin="10,0,10,20"
                    Opacity="0.9" />
 
-            <!-- Felhasználónév mező -->
+            
             <Frame BackgroundColor="#2A2A3C"
                    CornerRadius="15"
                    Padding="10"
                    HasShadow="False"
                    WidthRequest="280">
-                <!-- finom külső árnyék a Frame helyett belső Shadow használatával -->
+               
                 <Frame.Shadow>
                     <Shadow Brush="#000000" Offset="0,6" Radius="12" Opacity="0.18" />
                 </Frame.Shadow>
@@ -55,7 +55,7 @@
                        ClearButtonVisibility="WhileEditing" />
             </Frame>
 
-            <!-- Jelszó mező -->
+            
             <Frame BackgroundColor="#2A2A3C"
                    CornerRadius="15"
                    Padding="10"
@@ -74,7 +74,7 @@
                        ClearButtonVisibility="WhileEditing" />
             </Frame>
 
-            <!-- Bejelentkezés gomb -->
+           
             <Button Text="Bejelentkezés"
                     Clicked="OnLoginClicked"
                     WidthRequest="220"
@@ -85,12 +85,12 @@
                     FontAttributes="Bold"
                     Margin="0,10,0,0">
                 <Button.Shadow>
-                    <!-- finom, elmosódott árnyék a gomb alatt -->
+                    
                     <Shadow Brush="#000000" Offset="0,6" Radius="14" Opacity="0.18" />
                 </Button.Shadow>
             </Button>
 
-            <!-- vagy Google bejelentkezés -->
+            
             <Label Text="vagy"
                    FontSize="14"
                    TextColor="WhiteSmoke"
@@ -98,7 +98,7 @@
                    Margin="0,15,0,5"
                    Opacity="0.8" />
 
-            <!-- Google login kép -->
+            
             <Frame BackgroundColor="#FFFFFF"
                    CornerRadius="10"
                    HasShadow="False"
@@ -110,7 +110,7 @@
                 </Frame.Shadow>
 
                 <Image x:Name="GoogleLoginImage"
-                       Source="googlekep.jpg"
+                       Source="porszemlogo.jpg"
                        Aspect="AspectFit"
                        WidthRequest="200"
                        HeightRequest="50">
@@ -120,7 +120,7 @@
                 </Image>
             </Frame>
 
-            <!-- Hibaüzenet -->
+           
             <Label x:Name="ErrorLabel"
                    TextColor="#FF8080"
                    FontSize="14"

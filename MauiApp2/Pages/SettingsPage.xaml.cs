@@ -13,7 +13,7 @@ namespace MauiApp2.Pages
     {
         private readonly Supabase.Client _supabaseClient;
         private ProfileData _profileData;
-        private Guid _userId; // Guid típusú, hogy illeszkedjen a ProfileData.UserId-hez
+        private Guid _userId; 
         private string _email;
 
         public SettingsPage(Supabase.Client supabaseClient)
@@ -27,7 +27,7 @@ namespace MauiApp2.Pages
         {
             try
             {
-                // Bejelentkezett felhasználó adatainak lekérdezése
+                
                 var user = _supabaseClient.Auth.CurrentUser;
                 if (user == null)
                 {
@@ -35,7 +35,7 @@ namespace MauiApp2.Pages
                     return;
                 }
 
-                // A user.Id-t Guid típusra konvertáljuk
+               
                 if (!Guid.TryParse(user.Id, out _userId))
                 {
                     await DisplayAlert("Hiba", "A felhasználói azonosító formátuma érvénytelen!", "OK");
@@ -45,10 +45,10 @@ namespace MauiApp2.Pages
                 _email = user.Email;
                 EmailLabel.Text = _email;
 
-                // A jelszót nem tudjuk lekérdezni a Supabase Auth-ból, ezért csak placeholder-t használunk
+                
                 PasswordLabel.Text = "********";
 
-                // ProfileData lekérdezése
+               
                 var profileResponse = await _supabaseClient.From<ProfileData>().Where(p => p.UserId == _userId).Single();
                 if (profileResponse != null)
                 {
@@ -58,7 +58,7 @@ namespace MauiApp2.Pages
                 }
                 else
                 {
-                    // Ha nincs még profil adat, létrehozunk egy újat egyedi barátkóddal
+                    
                     string uniqueFriendCode = await GenerateUniqueFriendCode();
                     _profileData = new ProfileData { UserId = _userId, FriendCode = uniqueFriendCode };
                     FriendCodeLabel.Text = _profileData.FriendCode;
@@ -78,22 +78,22 @@ namespace MauiApp2.Pages
             string friendCode;
 
             bool isUnique = false;
-            int maxAttempts = 100; // Biztonsági korlát az ismétlésekre
+            int maxAttempts = 100; 
 
             do
             {
-                // Barátkód generálása: 3 nagybetû + 3 szám
+                
                 friendCode = new string(Enumerable.Repeat(letters, 3).Select(s => s[random.Next(s.Length)]).ToArray()) +
                              new string(Enumerable.Repeat(numbers, 3).Select(s => s[random.Next(s.Length)]).ToArray());
 
-                // Ellenõrizzük, hogy létezik-e már ilyen barátkód
+                
                 var existingProfile = await _supabaseClient.From<ProfileData>()
                     .Where(p => p.FriendCode == friendCode)
                     .Single();
 
                 if (existingProfile == null)
                 {
-                    isUnique = true; // Ha nem létezik, egyedi a kód
+                    isUnique = true; 
                 }
 
                 maxAttempts--;
@@ -103,7 +103,7 @@ namespace MauiApp2.Pages
                 }
             } while (!isUnique);
 
-            return friendCode; // Pl. "ABC123"
+            return friendCode; 
         }
 
         private async void OnUploadImageButtonClicked(object sender, EventArgs e)
@@ -113,7 +113,7 @@ namespace MauiApp2.Pages
                 var file = await FilePicker.PickAsync(new PickOptions { FileTypes = FilePickerFileType.Images });
                 if (file == null) return;
 
-                // Stream konvertálása byte[]-ra
+                
                 byte[] fileBytes;
                 using (var stream = await file.OpenReadAsync())
                 using (var memoryStream = new MemoryStream())
@@ -122,7 +122,7 @@ namespace MauiApp2.Pages
                     fileBytes = memoryStream.ToArray();
                 }
 
-                // A fájlnevet most már Guid alapján generáljuk
+                
                 var fileName = $"{_userId.ToString()}_{file.FileName}";
                 var uploadResponse = await _supabaseClient.Storage.From("profile-images").Upload(fileBytes, fileName);
 

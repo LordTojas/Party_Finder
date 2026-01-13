@@ -1,4 +1,4 @@
-using MauiApp2.Models;
+ï»¿using MauiApp2.Models;
 using Supabase;
 using System;
 using System.Collections.Generic;
@@ -14,7 +14,10 @@ namespace MauiApp2.Pages
     public partial class CurrentPage : ContentPage, INotifyPropertyChanged
     {
         private readonly Supabase.Client _supabaseClient;
+
         private List<EventWithRating> _topEvents;
+
+        public int UserAge { get; set; } = 0;  
 
         public List<EventWithRating> TopEvents
         {
@@ -30,44 +33,98 @@ namespace MauiApp2.Pages
         {
             InitializeComponent();
             _supabaseClient = supabaseClient ?? throw new ArgumentNullException(nameof(supabaseClient));
+
             BindingContext = this;
 
-            LoadTopEventsAsync();
+            
+            Task.Run(async () =>
+            {
+                await LoadUserAgeAsync();
+                LoadTopEventsAsync();
+            });
         }
 
+       
+        private async Task LoadUserAgeAsync()
+        {
+            try
+            {
+                var authUser = _supabaseClient.Auth.CurrentUser;
+
+                if (authUser == null)
+                {
+                    UserAge = 0;
+                    return;
+                }
+
+                
+                var response = await _supabaseClient
+                    .From<MauiApp2.Models.User>()
+                    .Where(u => u.Id == authUser.Id)
+                    .Single();
+
+                if (response != null)
+                    UserAge = response.Age;
+                else
+                    UserAge = 0;
+
+                Console.WriteLine($"CurrentPage â†’ UserAge = {UserAge}");
+            }
+            catch
+            {
+                UserAge = 0;
+            }
+        }
+
+       
         private async void LoadTopEventsAsync()
         {
             try
             {
-                // 1. Lekérjük az összes eseményt az events táblából
+               
                 var eventsResponse = await _supabaseClient.From<EventInsert>().Get();
                 var allEvents = eventsResponse.Models;
 
-                // 2. Szûrjük az Ongoing eseményeket
                 var now = DateTime.Now;
+
+              
                 var ongoingEvents = allEvents.Where(e =>
                 {
                     var startDateTime = e.StartDate.Date.Add(e.StartTime);
                     var endDateTime = e.EndDate.Date.Add(e.EndTime);
+
                     return startDateTime <= now && now <= endDateTime;
                 }).ToList();
 
-                // 3. Lekérjük az értékeléseket az event_ratings táblából
+
+                
+                if (UserAge > 0 && UserAge < 18)
+                {
+                    ongoingEvents = ongoingEvents
+                        .Where(e => e.AgeRestriction == "Nincs korhatÃ¡r" ||
+                                    string.IsNullOrEmpty(e.AgeRestriction))
+                        .ToList();
+                }
+
+
+               
                 var ratingsResponse = await _supabaseClient.From<EventRating>().Get();
                 var ratings = ratingsResponse.Models;
 
-                // 4. Kiszámítjuk az átlagos értékeléseket
+
+                
                 var eventsWithRatings = new List<EventWithRating>();
+
                 foreach (var evt in ongoingEvents)
                 {
                     var eventRatings = ratings.Where(r => r.EventId == evt.Id).ToList();
                     double averageRating = eventRatings.Any() ? eventRatings.Average(r => r.Rating) : 0.0;
 
-                    // 5. Lekérjük a létrehozó felhasználónevet a users táblából
-                    // Az evt.UserId string típusú, ahogy a User.Id is, így nem kell konvertálni
-                    var userProfile = await _supabaseClient.From<User>()
+                    var userProfile = await _supabaseClient
+                        .From<MauiApp2.Models.User>()
                         .Where(u => u.Id == evt.UserId)
                         .Single();
+
                     string creatorUsername = userProfile?.Username ?? "Ismeretlen";
 
                     eventsWithRatings.Add(new EventWithRating
@@ -82,16 +139,19 @@ namespace MauiApp2.Pages
                         Location = evt.Location,
                         Category = evt.Category,
                         AverageRating = averageRating,
-                        CreatorUsername = creatorUsername
+                        CreatorUsername = creatorUsername,
+                        AgeRestriction = evt.AgeRestriction   
                     });
                 }
 
-                // 6. Rendezés az átlagos értékelés szerint csökkenõ sorrendben
-                TopEvents = eventsWithRatings.OrderByDescending(e => e.AverageRating).ToList();
+               
+                TopEvents = eventsWithRatings
+                    .OrderByDescending(e => e.AverageRating)
+                    .ToList();
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Hiba", $"Hiba az események betöltése közben: {ex.Message}", "OK");
+                await DisplayAlert("Hiba", $"Hiba az esemÃ©nyek betÃ¶ltÃ©se kÃ¶zben: {ex.Message}", "OK");
             }
         }
 
@@ -99,13 +159,11 @@ namespace MauiApp2.Pages
         {
             if (e.CurrentSelection.FirstOrDefault() is EventWithRating selectedEvent)
             {
-                // Navigáció az esemény részleteire (például egy EventDetailsPage-re)
-                // await Shell.Current.GoToAsync($"EventDetailsPage?eventId={selectedEvent.Id}");
-                EventsCollectionView.SelectedItem = null; // Kiválasztás törlése
+                EventsCollectionView.SelectedItem = null;
             }
         }
 
-        // INotifyPropertyChanged implementáció
+       
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName)
         {
@@ -113,14 +171,12 @@ namespace MauiApp2.Pages
         }
     }
 
-    // Segédosztály az eseményekhez és értékelésekhez
     public class EventWithRating : EventInsert
     {
         public double AverageRating { get; set; }
         public string CreatorUsername { get; set; }
     }
 
-    // Az event_ratings tábla modellje
     [Table("event_ratings")]
     public class EventRating : BaseModel
     {
@@ -128,7 +184,7 @@ namespace MauiApp2.Pages
         public long EventId { get; set; }
 
         [Column("user_id")]
-        public string UserId { get; set; } // Guid helyett string, hogy illeszkedjen a users tábla id oszlopához
+        public string UserId { get; set; }
 
         [Column("rating")]
         public int Rating { get; set; }

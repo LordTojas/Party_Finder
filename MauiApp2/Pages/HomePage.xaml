@@ -7,7 +7,7 @@
     <ScrollView>
         <VerticalStackLayout Padding="25" Spacing="25">
 
-            <!-- Főcím -->
+            
             <Label Text="Üdv újra a PartyFinderben!"
                    FontSize="28"
                    FontAttributes="Bold"
@@ -15,7 +15,7 @@
                    HorizontalOptions="Center"
                    Margin="0,40,0,20"/>
 
-            <!-- Navigáció kártya -->
+            
             <Frame CornerRadius="20" BackgroundColor="#1E1E1E" Padding="20" HasShadow="True">
                 <Frame.Shadow>
                     <Shadow Brush="#000000" Opacity="0.5" Radius="15" Offset="5,5"/>
@@ -57,7 +57,7 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Események kártya -->
+            
             <Frame CornerRadius="20" BackgroundColor="#1E1E1E" Padding="20" HasShadow="True">
                 <Frame.Shadow>
                     <Shadow Brush="#000000" Opacity="0.5" Radius="15" Offset="5,5"/>
@@ -99,7 +99,7 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Közösség kártya -->
+            
             <Frame CornerRadius="20" BackgroundColor="#1E1E1E" Padding="20" HasShadow="True">
                 <Frame.Shadow>
                     <Shadow Brush="#000000" Opacity="0.5" Radius="15" Offset="5,5"/>
@@ -150,7 +150,7 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Kijelentkezés -->
+            
             <Button Text="Kijelentkezés"
                     x:Name="LogoutButton"
                     FontSize="16"

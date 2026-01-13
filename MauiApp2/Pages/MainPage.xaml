@@ -8,7 +8,7 @@
     <ScrollView>
         <VerticalStackLayout Padding="25" Spacing="25">
 
-            <!-- Cím -->
+           
             <Label Text="Csatlakozz a PartyFinderhez!"
                    FontSize="28"
                    FontAttributes="Bold"
@@ -16,7 +16,7 @@
                    HorizontalOptions="Center"
                    Margin="0,40,0,10"/>
 
-            <!-- Kártya -->
+           
             <Frame CornerRadius="20"
                    BackgroundColor="#1E1E1E"
                    Padding="25"
@@ -27,23 +27,23 @@
 
                 <VerticalStackLayout Spacing="18">
 
-                    <!-- Felhasználónév -->
+                    
                     <Label Text="Felhasználónév" TextColor="#BB86FC" FontSize="16"/>
                     <Entry x:Name="UsernameEntry" Placeholder="Írd be a felhasználóneved" PlaceholderColor="#AAAAAA" TextColor="White" />
 
-                    <!-- Email cím -->
+                   
                     <Label Text="Email cím" TextColor="#BB86FC" FontSize="16"/>
                     <Entry x:Name="EmailEntry" Placeholder="pl. te@pelda.com" PlaceholderColor="#AAAAAA" TextColor="White" Keyboard="Email" />
 
-                    <!-- Jelszó -->
+                   
                     <Label Text="Jelszó" TextColor="#BB86FC" FontSize="16"/>
                     <Entry x:Name="PasswordEntry" Placeholder="Legalább 8 karakter" PlaceholderColor="#AAAAAA" TextColor="White" IsPassword="True" />
 
-                    <!-- Jelszó újra -->
+                    
                     <Label Text="Jelszó újra" TextColor="#BB86FC" FontSize="16"/>
                     <Entry x:Name="ConfirmPasswordEntry" Placeholder="Ismételd meg a jelszót" PlaceholderColor="#AAAAAA" TextColor="White" IsPassword="True" />
 
-                    <!-- Nem -->
+                    
                     <Label Text="Nem" TextColor="#BB86FC" FontSize="16"/>
                     <Picker x:Name="GenderPicker" Title="Válassz nemet" TextColor="White">
                         <Picker.ItemsSource>
@@ -54,7 +54,7 @@
                         </Picker.ItemsSource>
                     </Picker>
 
-                    <!-- Kor -->
+                    
                     <Label Text="Kor" TextColor="#BB86FC" FontSize="16"/>
                     <Picker x:Name="AgePicker" Title="Válassz kort" TextColor="White">
                         <Picker.ItemsSource>
@@ -72,7 +72,7 @@
                         </Picker.ItemsSource>
                     </Picker>
 
-                    <!-- Elfogadási checkbox -->
+                   
                     <HorizontalStackLayout Spacing="10">
                         <CheckBox x:Name="AcceptCheckBox" Color="#BB86FC"/>
                         <Label Text="Elfogadom a feltételeket"
@@ -80,7 +80,7 @@
                                VerticalOptions="Center"/>
                     </HorizontalStackLayout>
 
-                    <!-- Fiók létrehozása gomb -->
+                    
                     <Button Text="Fiók létrehozása"
                             x:Name="RegisterButton"
                             Clicked="OnRegisterClicked"
@@ -90,7 +90,7 @@
                             FontAttributes="Bold"
                             HeightRequest="50"/>
 
-                    <!-- Hibaüzenet -->
+                    
                     <Label x:Name="ErrorLabel"
                            TextColor="Red"
                            IsVisible="False"
@@ -100,7 +100,7 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Lábléc -->
+            
             <Label Text="🎉 Készülj a legjobb bulikra a PartyFinderrel!"
                    TextColor="#AAAAAA"
                    FontSize="13"
